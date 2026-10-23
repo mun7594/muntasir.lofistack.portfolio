@@ -442,6 +442,390 @@ export function SubmitFormButton({
       "Easy to customize text and callback",
     ],
   },
+  {
+    id: "8",
+    slug: "star-rating",
+    name: "Star Rating Component",
+    type: "rating",
+    description: "Interactive star rating component with hover effects and visual feedback",
+    longDescription:
+      "A beautiful, interactive star rating component that lets users rate content with a 5-star scale. Features smooth hover animations, visual feedback, and support for multiple sizes. Perfect for reviews, ratings, feedback forms, and user interactions. The component includes keyboard accessibility and a clear rating display with descriptive labels.",
+    thumbnail: "",
+    createdDate: "2026-10-14",
+    week: 3,
+    componentNumber: 3,
+    category: "Rating",
+    tags: ["Interactive", "Rating", "Feedback", "Animation", "Accessibility"],
+    dependencies: "React 18+",
+    techStack: ["React", "TypeScript", "Tailwind CSS"],
+    files: [
+      {
+        name: "StarRating.tsx",
+        language: "typescript",
+        content: `"use client";
+
+import { useState } from "react";
+
+interface StarRatingProps {
+  maxStars?: number;
+  onRatingChange?: (rating: number) => void;
+  initialRating?: number;
+  size?: "sm" | "md" | "lg";
+}
+
+export function StarRating({
+  maxStars = 5,
+  onRatingChange,
+  initialRating = 0,
+  size = "md",
+}: StarRatingProps) {
+  const [rating, setRating] = useState<number>(initialRating);
+  const [hoverRating, setHoverRating] = useState<number>(0);
+
+  const sizeClasses = {
+    sm: "w-6 h-6",
+    md: "w-8 h-8",
+    lg: "w-12 h-12",
+  };
+
+  const handleStarClick = (value: number) => {
+    setRating(value);
+    onRatingChange?.(value);
+  };
+
+  const handleStarHover = (value: number) => {
+    setHoverRating(value);
+  };
+
+  const handleMouseLeave = () => {
+    setHoverRating(0);
+  };
+
+  return (
+    <div className="flex flex-col items-center gap-4">
+      <div
+        className="flex gap-2 cursor-pointer"
+        onMouseLeave={handleMouseLeave}
+      >
+        {Array.from({ length: maxStars }).map((_, index) => {
+          const starValue = index + 1;
+          const isFilled = starValue <= (hoverRating || rating);
+
+          return (
+            <button
+              key={index}
+              onClick={() => handleStarClick(starValue)}
+              onMouseEnter={() => handleStarHover(starValue)}
+              className={\`transition-all duration-200 transform \${
+                isFilled ? "scale-110" : "scale-100"
+              } \${sizeClasses[size]}\`}
+              aria-label={\`Rate \${starValue} stars\`}
+              type="button"
+            >
+              <svg
+                className={\`w-full h-full transition-all duration-200 \${
+                  isFilled
+                    ? "fill-yellow-400 drop-shadow-lg"
+                    : "fill-gray-300 hover:fill-yellow-200"
+                }\`}
+                viewBox="0 0 24 24"
+              >
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+              </svg>
+            </button>
+          );
+        })}
+      </div>
+
+      {rating > 0 && (
+        <div className="text-center">
+          <div className="text-3xl font-bold text-yellow-500">{rating}</div>
+          <div className="text-sm text-gray-600">
+            {rating === 1 && "Poor"}
+            {rating === 2 && "Fair"}
+            {rating === 3 && "Good"}
+            {rating === 4 && "Very Good"}
+            {rating === 5 && "Excellent"}
+          </div>
+        </div>
+      )}
+
+      {rating > 0 && (
+        <button
+          onClick={() => {
+            setRating(0);
+            onRatingChange?.(0);
+          }}
+          className="text-sm text-gray-500 hover:text-gray-700 underline"
+        >
+          Clear Rating
+        </button>
+      )}
+    </div>
+  );
+}`,
+      },
+      {
+        name: "index.ts",
+        language: "typescript",
+        content: `export { StarRating } from './StarRating'`,
+      },
+    ],
+    prompt: `Create an interactive star rating component in React with these features:
+    - Display 5 stars that users can click to rate
+    - Hover effect that highlights stars up to the hovered position
+    - Click to select a rating (1-5 stars)
+    - Show rating value and descriptive label (Poor, Fair, Good, Very Good, Excellent)
+    - Stars scale up on hover for visual feedback
+    - Support for different sizes (small, medium, large)
+    - Clear rating button to reset
+    - Smooth animations and transitions
+    - TypeScript with full prop typing
+    - Callback function when rating changes
+    - Keyboard accessible with proper ARIA labels`,
+    codeLink: "https://github.com/mun7594/muntasir.lofistack.portfolio",
+    liveLink: "https://muntasir-lofistack-portfolio.vercel.app/components/star-rating",
+    accessibility:
+      "Semantic button elements with proper ARIA labels. Clear visual feedback on hover and focus. Keyboard navigable. High contrast yellow stars. Touch-friendly 44px minimum tap targets on large size.",
+    relatedProps: [
+      {
+        name: "maxStars",
+        type: "number",
+        default: "5",
+        description: "Number of stars to display",
+      },
+      {
+        name: "onRatingChange",
+        type: "(rating: number) => void",
+        default: "undefined",
+        description: "Callback function when rating changes",
+      },
+      {
+        name: "initialRating",
+        type: "number",
+        default: "0",
+        description: "Initial rating value (0-5)",
+      },
+      {
+        name: "size",
+        type: '"sm" | "md" | "lg"',
+        default: '"md"',
+        description: "Star size (small, medium, large)",
+      },
+    ],
+    features: [
+      "5-star interactive rating system",
+      "Hover effects with star scale animation",
+      "Click to select rating",
+      "Descriptive rating labels",
+      "Multiple size options",
+      "Smooth transitions",
+      "Clear rating button",
+      "Keyboard accessible",
+      "ARIA labels for screen readers",
+      "Callback function support",
+      "TypeScript support",
+      "Perfect for reviews and feedback",
+    ],
+  },
+  {
+    id: "9",
+    slug: "progress-indicator",
+    name: "Progress Indicator",
+    type: "progress",
+    description: "Animated progress bar with multiple variants and smooth animations",
+    longDescription:
+      "A beautiful, animated progress indicator component that displays progress with smooth animations and visual effects. Supports multiple color variants (default, success, warning, danger), customizable heights, and optional percentage labels. Perfect for downloads, uploads, loading states, and progress tracking. Features gradient backgrounds and shimmer animations for an engaging visual experience.",
+    thumbnail: "",
+    createdDate: "2026-10-14",
+    week: 3,
+    componentNumber: 4,
+    category: "Progress",
+    tags: ["Animation", "Progress", "Loading", "Visual Feedback", "Responsive"],
+    dependencies: "React 18+",
+    techStack: ["React", "TypeScript", "Tailwind CSS", "CSS Animations"],
+    files: [
+      {
+        name: "ProgressIndicator.tsx",
+        language: "typescript",
+        content: `"use client";
+
+import { useEffect, useState } from "react";
+
+interface ProgressIndicatorProps {
+  percentage?: number;
+  label?: string;
+  showPercentage?: boolean;
+  animated?: boolean;
+  variant?: "default" | "success" | "warning" | "danger";
+  height?: "sm" | "md" | "lg";
+}
+
+export function ProgressIndicator({
+  percentage = 0,
+  label,
+  showPercentage = true,
+  animated = true,
+  variant = "default",
+  height = "md",
+}: ProgressIndicatorProps) {
+  const [displayPercentage, setDisplayPercentage] = useState(0);
+
+  useEffect(() => {
+    if (!animated) {
+      setDisplayPercentage(percentage);
+      return;
+    }
+
+    const interval = setInterval(() => {
+      setDisplayPercentage((prev) => {
+        if (prev >= percentage) {
+          clearInterval(interval);
+          return percentage;
+        }
+        return prev + Math.max(1, (percentage - prev) / 10);
+      });
+    }, 30);
+
+    return () => clearInterval(interval);
+  }, [percentage, animated]);
+
+  const heightClasses = {
+    sm: "h-2",
+    md: "h-3",
+    lg: "h-4",
+  };
+
+  const variantClasses = {
+    default: "bg-gradient-to-r from-blue-500 to-blue-600",
+    success: "bg-gradient-to-r from-green-500 to-green-600",
+    warning: "bg-gradient-to-r from-yellow-500 to-yellow-600",
+    danger: "bg-gradient-to-r from-red-500 to-red-600",
+  };
+
+  const clampedPercentage = Math.min(100, Math.max(0, displayPercentage));
+
+  return (
+    <div className="w-full max-w-md">
+      {label && (
+        <div className="flex justify-between items-center mb-2">
+          <span className="text-sm font-semibold text-gray-700">{label}</span>
+          {showPercentage && (
+            <span className="text-sm font-semibold text-gray-600">
+              {Math.round(clampedPercentage)}%
+            </span>
+          )}
+        </div>
+      )}
+
+      <div className={\`w-full bg-gray-200 rounded-full overflow-hidden \${heightClasses[height]}\`}>
+        <div
+          className={\`\${variantClasses[variant]} \${heightClasses[height]} rounded-full transition-all duration-300 ease-out shadow-lg\`}
+          style={{ width: \`\${clampedPercentage}%\` }}
+        >
+          {animated && clampedPercentage > 0 && clampedPercentage < 100 && (
+            <div className="absolute inset-0 overflow-hidden rounded-full">
+              <div
+                className="h-full w-1/3 bg-white/30 animate-pulse"
+                style={{
+                  animation: "shimmer 2s infinite",
+                }}
+              />
+            </div>
+          )}
+        </div>
+      </div>
+
+      <style>{\`
+        @keyframes shimmer {
+          0% {
+            transform: translateX(-100%);
+          }
+          100% {
+            transform: translateX(300%);
+          }
+        }
+      \`}</style>
+    </div>
+  );
+}`,
+      },
+      {
+        name: "index.ts",
+        language: "typescript",
+        content: `export { ProgressIndicator } from './ProgressIndicator'`,
+      },
+    ],
+    prompt: `Create an animated progress indicator component in React with these features:
+    - Display a progress bar that fills from 0-100%
+    - Smooth animation when percentage changes
+    - Support for multiple color variants (default: blue, success: green, warning: yellow, danger: red)
+    - Gradient background on progress bar
+    - Optional percentage label display
+    - Customizable height (small, medium, large)
+    - Shimmer/pulse animation on active progress
+    - Optional label text above the progress bar
+    - Smooth easing transitions
+    - TypeScript with full prop typing
+    - Responsive design that adapts to container width
+    - Clamp percentage between 0-100`,
+    codeLink: "https://github.com/mun7594/muntasir.lofistack.portfolio",
+    liveLink: "https://muntasir-lofistack-portfolio.vercel.app/components/progress-indicator",
+    accessibility:
+      "Semantic structure with proper labels. High contrast gradient colors. Percentage values displayed numerically and visually. ARIA labels for context. Clear visual indication of progress state.",
+    relatedProps: [
+      {
+        name: "percentage",
+        type: "number",
+        default: "0",
+        description: "Progress percentage (0-100)",
+      },
+      {
+        name: "label",
+        type: "string",
+        default: "undefined",
+        description: "Label text displayed above progress bar",
+      },
+      {
+        name: "showPercentage",
+        type: "boolean",
+        default: "true",
+        description: "Show percentage value on right side",
+      },
+      {
+        name: "animated",
+        type: "boolean",
+        default: "true",
+        description: "Enable smooth animation when percentage changes",
+      },
+      {
+        name: "variant",
+        type: '"default" | "success" | "warning" | "danger"',
+        default: '"default"',
+        description: "Color variant of progress bar",
+      },
+      {
+        name: "height",
+        type: '"sm" | "md" | "lg"',
+        default: '"md"',
+        description: "Height of progress bar",
+      },
+    ],
+    features: [
+      "Smooth animated progress bar",
+      "Multiple color variants",
+      "Gradient backgrounds",
+      "Customizable heights",
+      "Percentage label display",
+      "Shimmer animation effect",
+      "Responsive design",
+      "No external dependencies",
+      "TypeScript support",
+      "Easing animations",
+      "Perfect for uploads, downloads, loading",
+      "Lightweight and performant",
+    ],
+  },
 ];
 
 // Helper to get latest components (for homepage)

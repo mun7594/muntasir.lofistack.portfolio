@@ -32,6 +32,16 @@ export default function ComponentCard({ component }: ComponentCardProps) {
                 <p className="text-gray-700 font-bold text-lg">Flip Animated</p>
                 <p className="text-gray-600 text-sm">Button</p>
               </div>
+            ) : component.slug === "star-rating" ? (
+              <div className="text-center">
+                <p className="text-gray-700 font-bold text-lg">⭐⭐⭐⭐⭐</p>
+                <p className="text-gray-600 text-sm">Star Rating</p>
+              </div>
+            ) : component.slug === "progress-indicator" ? (
+              <div className="text-center">
+                <p className="text-gray-700 font-bold text-lg">Progress Bar</p>
+                <p className="text-gray-600 text-sm">Indicator</p>
+              </div>
             ) : (
               <svg
                 className="absolute inset-0 w-full h-full text-gray-300 p-8"
