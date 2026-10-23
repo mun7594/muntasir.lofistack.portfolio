@@ -38,6 +38,15 @@ export const agents: Agent[] = [
   },
 ];
 
+export const getLatestAgents = (limit: number = 4): Agent[] => {
+  return [...agents]
+    .sort(
+      (a, b) =>
+        new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime()
+    )
+    .slice(0, limit);
+};
+
 export const getAgentBySlug = (slug: string): Agent | undefined => {
   return agents.find((a) => a.slug === slug);
 };

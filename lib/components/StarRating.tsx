@@ -37,12 +37,42 @@ export function StarRating({
     setHoverRating(0);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    let newRating = rating;
+
+    if (e.key === "ArrowRight") {
+      newRating = Math.min(maxStars, rating + 1);
+      e.preventDefault();
+    } else if (e.key === "ArrowLeft") {
+      newRating = Math.max(0, rating - 1);
+      e.preventDefault();
+    } else if (e.key === "Home") {
+      newRating = 0;
+      e.preventDefault();
+    } else if (e.key === "End") {
+      newRating = maxStars;
+      e.preventDefault();
+    }
+
+    if (newRating !== rating) {
+      setRating(newRating);
+      onRatingChange?.(newRating);
+    }
+  };
+
   return (
     <div className="flex flex-col items-center gap-4">
       {/* Stars Container */}
       <div
-        className="flex gap-2 cursor-pointer"
+        className="flex gap-2 cursor-pointer outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400 rounded-lg p-2"
         onMouseLeave={handleMouseLeave}
+        onKeyDown={handleKeyDown}
+        role="radiogroup"
+        aria-label="Star rating (use arrow keys to rate, Home for 0, End for max)"
+        tabIndex={0}
+        aria-valuenow={rating}
+        aria-valuemin={0}
+        aria-valuemax={maxStars}
       >
         {Array.from({ length: maxStars }).map((_, index) => {
           const starValue = index + 1;
@@ -56,8 +86,9 @@ export function StarRating({
               onMouseEnter={() => handleStarHover(starValue)}
               className={`transition-all duration-200 transform ${
                 isFilled ? "scale-110" : "scale-100"
-              } ${sizeClasses[size]}`}
-              aria-label={`Rate ${starValue} stars`}
+              } ${sizeClasses[size]} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400 rounded-full`}
+              aria-label={`${starValue} star${starValue !== 1 ? "s" : ""} ${rating === starValue ? "(selected)" : ""}`}
+              aria-pressed={rating === starValue}
               type="button"
             >
               <svg
