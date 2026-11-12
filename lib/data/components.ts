@@ -826,6 +826,268 @@ export function ProgressIndicator({
       "Lightweight and performant",
     ],
   },
+  {
+    id: "10",
+    slug: "prompt-bar",
+    name: "Prompt Bar",
+    type: "input",
+    description: "ChatGPT-style prompt input bar with suggestion prompts",
+    longDescription:
+      "A modern, interactive prompt input component inspired by ChatGPT's interface. Features a rounded input field with a submit button and a grid of 7 suggestion prompts below. Supports three responsive sizes (small, medium, large) with smooth animations and hover effects. Perfect for AI chat interfaces, search bars, or prompt-based applications. Includes keyboard support (Enter to submit), focus ring styling, and full accessibility features.",
+    thumbnail: "",
+    createdDate: "2026-10-14",
+    week: 3,
+    componentNumber: 5,
+    category: "Input",
+    tags: ["Input", "Prompt", "ChatGPT-style", "Suggestions", "Interactive"],
+    dependencies: "React 18+",
+    techStack: ["React", "TypeScript", "Tailwind CSS"],
+    files: [
+      {
+        name: "PromptBar.tsx",
+        language: "typescript",
+        content: `"use client";
+
+import { useState } from "react";
+
+interface PromptBarProps {
+  onSubmit?: (prompt: string) => void;
+  size?: "sm" | "md" | "lg";
+  placeholder?: string;
+}
+
+const suggestions = [
+  "Explain quantum computing",
+  "Write a Python function",
+  "Design a database schema",
+  "Create a marketing plan",
+  "Build a REST API",
+  "Write a product brief",
+  "Explain React hooks",
+];
+
+export function PromptBar({
+  onSubmit,
+  size = "md",
+  placeholder = "Ask anything...",
+}: PromptBarProps) {
+  const [input, setInput] = useState("");
+  const [selectedSuggestion, setSelectedSuggestion] = useState<string | null>(
+    null
+  );
+
+  const sizeClasses = {
+    sm: {
+      container: "max-w-md",
+      input: "text-sm py-2 px-3",
+      button: "w-8 h-8",
+      icon: "w-4 h-4",
+      suggestionText: "text-xs",
+      suggestionPadding: "px-2 py-1",
+    },
+    md: {
+      container: "max-w-2xl",
+      input: "text-base py-3 px-4",
+      button: "w-10 h-10",
+      icon: "w-5 h-5",
+      suggestionText: "text-sm",
+      suggestionPadding: "px-3 py-2",
+    },
+    lg: {
+      container: "max-w-4xl",
+      input: "text-lg py-4 px-5",
+      button: "w-12 h-12",
+      icon: "w-6 h-6",
+      suggestionText: "text-base",
+      suggestionPadding: "px-4 py-3",
+    },
+  };
+
+  const classes = sizeClasses[size];
+
+  const handleSubmit = (text: string) => {
+    if (text.trim()) {
+      onSubmit?.(text);
+      setInput("");
+      setSelectedSuggestion(null);
+    }
+  };
+
+  const handleSuggestionClick = (suggestion: string) => {
+    setSelectedSuggestion(suggestion);
+    handleSubmit(suggestion);
+  };
+
+  return (
+    <div className={\`w-full flex flex-col items-center gap-4 \${classes.container}\`}>
+      <div className="w-full">
+        <div className="relative flex items-center gap-2 bg-white border border-gray-200 rounded-full shadow-lg hover:shadow-xl transition-shadow duration-200 focus-within:ring-2 focus-within:ring-blue-400 focus-within:ring-offset-2">
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleSubmit(input);
+              }
+            }}
+            placeholder={placeholder}
+            className={\`flex-1 bg-transparent outline-none \${classes.input} placeholder-gray-400 text-gray-900\`}
+          />
+
+          <button
+            onClick={() => handleSubmit(input)}
+            disabled={!input.trim()}
+            className={\`mr-2 flex items-center justify-center rounded-full transition-all duration-200 \${
+              input.trim()
+                ? "bg-blue-500 hover:bg-blue-600 text-white cursor-pointer active:scale-95"
+                : "bg-gray-100 text-gray-400 cursor-not-allowed"
+            } \${classes.button}\`}
+            aria-label="Submit prompt"
+          >
+            <svg
+              className={classes.icon}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+        {suggestions.map((suggestion, index) => (
+          <button
+            key={index}
+            onClick={() => handleSuggestionClick(suggestion)}
+            className={\`group text-left bg-white border border-gray-200 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-all duration-200 \${classes.suggestionPadding}\`}
+            aria-label={\`Suggestion: \${suggestion}\`}
+          >
+            <div className="flex items-start gap-2">
+              <svg
+                className={\`flex-shrink-0 text-gray-400 group-hover:text-blue-500 transition-colors \${classes.icon}\`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 10V3L4 14h7v7l9-11h-7z"
+                />
+              </svg>
+              <span className={\`\${classes.suggestionText} text-gray-700 group-hover:text-gray-900 leading-snug\`}>
+                {suggestion}
+              </span>
+            </div>
+          </button>
+        ))}
+      </div>
+
+      {selectedSuggestion && (
+        <div className="text-xs text-gray-500 animate-pulse">
+          Processing: "{selectedSuggestion}"
+        </div>
+      )}
+    </div>
+  );
+}`,
+      },
+      {
+        name: "index.ts",
+        language: "typescript",
+        content: `export { PromptBar } from './PromptBar'`,
+      },
+    ],
+    prompt: `Create a ChatGPT-style prompt input bar component in React with these features:
+
+Core Functionality:
+- Text input field with placeholder text
+- Submit button with send icon (↗)
+- 7 suggestion prompts displayed in a grid below
+- Enter key to submit (Shift+Enter for new line)
+- Click suggestions to submit them
+
+Visual Design:
+- Rounded input container (border-radius: full)
+- White background with light gray border
+- Blue submit button (enabled only when text present)
+- Shadow effects with hover state
+- Suggestions as cards with icon and hover effects
+- Lightning bolt icon on suggestion cards
+
+Responsive Sizes:
+- Small: max-w-md, text-sm
+- Medium (default): max-w-2xl, text-base
+- Large: max-w-4xl, text-lg
+- Different font sizes and padding for each size
+
+State Management:
+- Track input value
+- Track selected suggestion
+- Disable submit button when input is empty
+- Clear input after submit
+
+Animations:
+- Smooth shadow transition on hover
+- Button scale down on active (active:scale-95)
+- Focus ring on input (ring-2 ring-blue-400)
+- Hover color change on suggestions
+
+Accessibility:
+- ARIA labels on buttons
+- Focus ring visible on input
+- Keyboard navigation (Enter to submit)
+- Proper button disabled states
+- aria-label on suggestion buttons`,
+    codeLink: "https://github.com/mun7594/muntasir.lofistack.portfolio",
+    liveLink: "https://muntasir-lofistack-portfolio.vercel.app/components/prompt-bar",
+    accessibility:
+      "Semantic button elements with proper ARIA labels. Focus ring on input for keyboard navigation. Disabled state visual feedback. High contrast text on backgrounds. Touch-friendly buttons (40px minimum). Keyboard submit support with Enter key.",
+    relatedProps: [
+      {
+        name: "onSubmit",
+        type: "(prompt: string) => void",
+        default: "undefined",
+        description: "Callback function when prompt is submitted",
+      },
+      {
+        name: "size",
+        type: '"sm" | "md" | "lg"',
+        default: '"md"',
+        description: "Component size",
+      },
+      {
+        name: "placeholder",
+        type: "string",
+        default: '"Ask anything..."',
+        description: "Input placeholder text",
+      },
+    ],
+    features: [
+      "ChatGPT-style rounded input design",
+      "7 pre-built suggestion prompts",
+      "Responsive sizes (small, medium, large)",
+      "Submit button with send icon",
+      "Hover and focus effects",
+      "Enter key to submit",
+      "Click suggestions to use them",
+      "Smooth animations and transitions",
+      "Fully keyboard accessible",
+      "ARIA labels for screen readers",
+      "TypeScript support",
+      "Perfect for AI chat interfaces",
+    ],
+  },
 ];
 
 // Helper to get latest components (for homepage)

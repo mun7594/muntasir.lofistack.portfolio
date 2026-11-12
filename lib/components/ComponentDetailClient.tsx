@@ -8,6 +8,7 @@ import { BeforeAfterSliderDemo } from "./BeforeAfterSliderDemo";
 import { SubmitFormButtonDemo } from "./SubmitFormButtonDemo";
 import StarRatingDemo from "./StarRatingDemo";
 import ProgressIndicatorDemo from "./ProgressIndicatorDemo";
+import PromptBarDemo from "./PromptBarDemo";
 
 export function ComponentDetailClient({
   component,
@@ -247,6 +248,8 @@ export function ComponentDetailClient({
                     <StarRatingDemo />
                   ) : slug === "progress-indicator" ? (
                     <ProgressIndicatorDemo />
+                  ) : slug === "prompt-bar" ? (
+                    <PromptBarDemo />
                   ) : (
                     <div className="bg-white rounded-lg p-8 h-96 flex items-center justify-center border border-gray-300">
                       <div className="text-center">
