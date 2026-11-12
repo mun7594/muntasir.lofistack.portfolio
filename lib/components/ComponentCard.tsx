@@ -67,6 +67,11 @@ export default function ComponentCard({ component }: ComponentCardProps) {
                 <p className="text-gray-700 font-bold text-lg font-mono">{"!<>_#&"}</p>
                 <p className="text-gray-600 text-sm">Text Scramble</p>
               </div>
+            ) : component.slug === "liquid-morph" ? (
+              <div className="text-center">
+                <p className="text-gray-700 font-bold text-lg">💧</p>
+                <p className="text-gray-600 text-sm">Liquid Morph</p>
+              </div>
             ) : (
               <svg
                 className="absolute inset-0 w-full h-full text-gray-300 p-8"

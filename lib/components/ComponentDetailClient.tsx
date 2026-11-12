@@ -13,6 +13,7 @@ import InfiniteMarqueeDemo from "./InfiniteMarqueeDemo";
 import ImageRevealCardDemo from "./ImageRevealCardDemo";
 import PixelShatterLogoDemo from "./PixelShatterLogoDemo";
 import TextScrambleDemo from "./TextScrambleDemo";
+import LiquidMorphDemo from "./LiquidMorphDemo";
 
 export function ComponentDetailClient({
   component,
@@ -262,6 +263,8 @@ export function ComponentDetailClient({
                     <PixelShatterLogoDemo />
                   ) : slug === "text-scramble" ? (
                     <TextScrambleDemo />
+                  ) : slug === "liquid-morph" ? (
+                    <LiquidMorphDemo />
                   ) : (
                     <div className="bg-white rounded-lg p-8 h-96 flex items-center justify-center border border-gray-300">
                       <div className="text-center">

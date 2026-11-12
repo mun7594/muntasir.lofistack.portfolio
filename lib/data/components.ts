@@ -1901,6 +1901,256 @@ TypeScript, Tailwind CSS, zero dependencies.`,
       "TypeScript support, zero dependencies",
     ],
   },
+  {
+    id: "15",
+    slug: "liquid-morph",
+    name: "Liquid Morph",
+    type: "animation",
+    description: "Text and logo glyphs melt into liquid and re-form as the next shape",
+    longDescription:
+      "A mesmerizing liquid morphing effect where words (or logo glyphs like ▲ ● ■ ★) melt into a gooey blob and re-form as the next item in the cycle. The magic is an SVG threshold filter (feColorMatrix alpha-contrast boost) applied over two cross-blurring text layers — instead of a plain crossfade, the blurred overlap fuses into sharp liquid goo. Runs on an infinite requestAnimationFrame loop with configurable melt and hold durations, cycles any list of words, respects prefers-reduced-motion, and announces stable text to screen readers.",
+    thumbnail: "",
+    createdDate: "2026-11-12",
+    week: 3,
+    componentNumber: 10,
+    category: "Animation",
+    tags: ["Animation", "Morph", "Liquid", "SVG Filter", "Text Effect", "Creative"],
+    dependencies: "React 18+",
+    techStack: ["React", "TypeScript", "Tailwind CSS", "SVG Filters"],
+    files: [
+      {
+        name: "LiquidMorph.tsx",
+        language: "typescript",
+        content: `"use client";
+
+import { useEffect, useId, useRef } from "react";
+
+interface LiquidMorphProps {
+  words: string[]; // texts/glyphs to morph between (cycles infinitely)
+  morphTime?: number; // seconds the melt transition takes
+  cooldownTime?: number; // seconds each word stays solid
+  className?: string; // controls height, font size, color, weight
+}
+
+export function LiquidMorph({
+  words,
+  morphTime = 1,
+  cooldownTime = 1.25,
+  className = "",
+}: LiquidMorphProps) {
+  const text1Ref = useRef<HTMLSpanElement>(null);
+  const text2Ref = useRef<HTMLSpanElement>(null);
+  // useId can contain ":" which breaks url(#...) — strip to safe chars
+  const filterId = \`liquid-\${useId().replace(/[^a-zA-Z0-9]/g, "")}\`;
+
+  useEffect(() => {
+    const t1 = text1Ref.current;
+    const t2 = text2Ref.current;
+    if (!t1 || !t2 || words.length === 0) return;
+
+    // Reduced motion: show the first word statically, no melting
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      t2.textContent = words[0];
+      t2.style.opacity = "100%";
+      t2.style.filter = "none";
+      t1.style.opacity = "0%";
+      return;
+    }
+
+    let idx = 0;
+    let morph = 0;
+    let cooldown = cooldownTime;
+    let raf = 0;
+    let last = performance.now();
+
+    t2.textContent = words[0];
+    t2.style.opacity = "100%";
+    t2.style.filter = "";
+    t1.style.opacity = "0%";
+
+    // The melt: outgoing text blurs away while incoming text sharpens.
+    // The SVG threshold filter on the container turns the blurry overlap
+    // into gooey liquid instead of a plain crossfade.
+    const applyMorph = (f: number) => {
+      t2.style.filter = \`blur(\${Math.min(8 / f - 8, 100)}px)\`;
+      t2.style.opacity = \`\${Math.pow(f, 0.4) * 100}%\`;
+      const inv = 1 - f;
+      t1.style.filter = \`blur(\${Math.min(8 / inv - 8, 100)}px)\`;
+      t1.style.opacity = \`\${Math.pow(inv, 0.4) * 100}%\`;
+    };
+
+    const tick = (now: number) => {
+      const dt = (now - last) / 1000;
+      last = now;
+
+      if (cooldown > 0) {
+        cooldown -= dt;
+        if (cooldown <= 0) {
+          // Start melting into the next word
+          t1.textContent = words[idx % words.length];
+          t2.textContent = words[(idx + 1) % words.length];
+          morph = 0;
+          applyMorph(0);
+        } else {
+          t2.style.filter = "";
+          t2.style.opacity = "100%";
+          t1.style.opacity = "0%";
+        }
+      } else {
+        morph += dt;
+        const f = Math.min(morph / morphTime, 1);
+        applyMorph(f);
+        if (f >= 1) {
+          idx++;
+          cooldown = cooldownTime;
+        }
+      }
+
+      raf = requestAnimationFrame(tick);
+    };
+
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [words, morphTime, cooldownTime]);
+
+  return (
+    <>
+      {/* Threshold filter: boosts alpha contrast so blurred text edges
+          merge into sharp liquid blobs */}
+      <svg className="absolute w-0 h-0" aria-hidden="true" focusable="false">
+        <defs>
+          <filter id={filterId}>
+            <feColorMatrix
+              in="SourceGraphic"
+              type="matrix"
+              values="1 0 0 0 0
+                      0 1 0 0 0
+                      0 0 1 0 0
+                      0 0 0 255 -140"
+            />
+          </filter>
+        </defs>
+      </svg>
+
+      <div
+        className={\`relative select-none \${className}\`}
+        style={{ filter: \`url(#\${filterId})\` }}
+        role="img"
+        aria-label={\`Morphing text: \${words.join(", ")}\`}
+      >
+        <span
+          ref={text1Ref}
+          aria-hidden="true"
+          className="absolute inset-0 flex items-center justify-center"
+        />
+        <span
+          ref={text2Ref}
+          aria-hidden="true"
+          className="absolute inset-0 flex items-center justify-center"
+        >
+          {words[0]}
+        </span>
+      </div>
+    </>
+  );
+}`,
+      },
+      {
+        name: "index.ts",
+        language: "typescript",
+        content: `export { LiquidMorph } from './LiquidMorph'`,
+      },
+    ],
+    prompt: `Create a liquid morph text animation component in React with these features:
+
+Core Effect:
+- Words (or logo glyphs like ▲ ● ■ ★) MELT into a gooey liquid blob and
+  re-form as the next word in the list, cycling infinitely
+- NOT a plain crossfade — the outgoing and incoming text must visually fuse
+  together like liquid during the transition
+
+The Liquid Technique (no libraries):
+- Two absolutely-positioned text layers stacked on top of each other
+- During a morph, the outgoing layer blurs OUT (blur 0 → 100px) while the
+  incoming layer blurs IN (blur 100px → 0), with opacity eased as pow(f, 0.4)
+- An SVG threshold filter on the PARENT container makes the goo:
+  feColorMatrix with values "1 0 0 0 0, 0 1 0 0 0, 0 0 1 0 0, 0 0 0 255 -140"
+  — this boosts alpha contrast so the blurry overlap collapses into sharp
+  liquid blobs instead of looking like a soft crossfade
+- Blur formula per frame: blur = min(8 / fraction - 8, 100) px
+
+Animation Loop:
+- requestAnimationFrame loop with delta-time, cleaned up on unmount
+- Two phases: morph (default 1s melt) and cooldown (default 1.25s solid hold)
+- At the end of each cooldown, swap in the next pair of words and restart
+- Direct DOM style manipulation via refs (no React re-renders per frame)
+
+Technical Details:
+- Unique SVG filter id per instance via useId (sanitize the ":" characters so
+  url(#id) stays valid) — multiple instances can coexist on one page
+- SSR-safe: first word rendered as static text on the server; the animation
+  only starts client-side in useEffect
+- Container styling (height, font size, color, weight) fully controlled via
+  className prop — works for huge hero text or small accents
+
+Accessibility:
+- Respects prefers-reduced-motion: shows the first word statically
+- role="img" with aria-label listing the words; animated layers aria-hidden
+  so screen readers never hear mid-morph garbage
+- select-none to prevent accidental text selection during animation
+
+Props:
+- words (required): string[] to cycle through
+- morphTime (default 1): melt duration in seconds
+- cooldownTime (default 1.25): how long each word stays solid
+- className: Tailwind classes for size/color/weight
+
+TypeScript, Tailwind CSS, zero dependencies.`,
+    codeLink: "https://github.com/mun7594/muntasir.lofistack.portfolio",
+    liveLink: "https://muntasir-lofistack-portfolio.vercel.app/components/liquid-morph",
+    accessibility:
+      "Respects prefers-reduced-motion by rendering the first word statically with no animation. The container exposes a stable aria-label listing all words while the animated layers are aria-hidden, so screen readers never announce mid-morph characters. select-none prevents accidental selection; no interaction is required to view the effect.",
+    relatedProps: [
+      {
+        name: "words",
+        type: "string[]",
+        default: "required",
+        description: "Texts or glyphs to morph between (cycles infinitely)",
+      },
+      {
+        name: "morphTime",
+        type: "number",
+        default: "1",
+        description: "Duration of the melt transition in seconds",
+      },
+      {
+        name: "cooldownTime",
+        type: "number",
+        default: "1.25",
+        description: "How long each word stays solid between morphs",
+      },
+      {
+        name: "className",
+        type: "string",
+        default: '""',
+        description: "Tailwind classes controlling height, font size, color, weight",
+      },
+    ],
+    features: [
+      "True liquid melt — not a crossfade",
+      "SVG threshold filter creates the gooey fusion",
+      "Works with words AND logo glyphs (▲ ● ■ ★)",
+      "Infinite cycle through any word list",
+      "Configurable melt and hold durations",
+      "requestAnimationFrame loop with delta-time",
+      "Zero re-renders during animation (ref-driven)",
+      "Multiple instances per page (unique filter ids)",
+      "Respects prefers-reduced-motion",
+      "Screen-reader safe (stable aria-label)",
+      "SSR-safe — no hydration errors",
+      "TypeScript support, zero dependencies",
+    ],
+  },
 ];
 
 // Helper to get latest components (for homepage)
