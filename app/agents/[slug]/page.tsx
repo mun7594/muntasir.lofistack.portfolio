@@ -1,6 +1,5 @@
 import { getAgentBySlug } from "@/lib/data/agents";
 import { notFound } from "next/navigation";
-import QuoteGeneratorDemo from "@/lib/components/QuoteGeneratorDemo";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -25,13 +24,6 @@ export default async function AgentPage({ params }: Props) {
           <p className="text-lg text-gray-600">{agent.longDescription}</p>
         </div>
 
-        {/* Live Demo */}
-        <div className="bg-white rounded-lg border border-gray-200 p-8 mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            Try It Live
-          </h2>
-          <QuoteGeneratorDemo />
-        </div>
 
         {/* Details */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
