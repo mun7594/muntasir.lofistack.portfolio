@@ -62,6 +62,11 @@ export default function ComponentCard({ component }: ComponentCardProps) {
                 <p className="text-gray-700 font-bold text-lg">🧩</p>
                 <p className="text-gray-600 text-sm">Pixel Shatter Logo</p>
               </div>
+            ) : component.slug === "text-scramble" ? (
+              <div className="text-center">
+                <p className="text-gray-700 font-bold text-lg font-mono">{"!<>_#&"}</p>
+                <p className="text-gray-600 text-sm">Text Scramble</p>
+              </div>
             ) : (
               <svg
                 className="absolute inset-0 w-full h-full text-gray-300 p-8"

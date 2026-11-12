@@ -12,6 +12,7 @@ import PromptBarDemo from "./PromptBarDemo";
 import InfiniteMarqueeDemo from "./InfiniteMarqueeDemo";
 import ImageRevealCardDemo from "./ImageRevealCardDemo";
 import PixelShatterLogoDemo from "./PixelShatterLogoDemo";
+import TextScrambleDemo from "./TextScrambleDemo";
 
 export function ComponentDetailClient({
   component,
@@ -259,6 +260,8 @@ export function ComponentDetailClient({
                     <ImageRevealCardDemo />
                   ) : slug === "pixel-shatter-logo" ? (
                     <PixelShatterLogoDemo />
+                  ) : slug === "text-scramble" ? (
+                    <TextScrambleDemo />
                   ) : (
                     <div className="bg-white rounded-lg p-8 h-96 flex items-center justify-center border border-gray-300">
                       <div className="text-center">

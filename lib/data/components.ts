@@ -1696,6 +1696,211 @@ TypeScript, Tailwind CSS + inline styles for dynamic transforms, zero dependenci
       "Zero dependencies",
     ],
   },
+  {
+    id: "14",
+    slug: "text-scramble",
+    name: "Text Scramble",
+    type: "animation",
+    description: "Letters randomly scramble through glyphs before resolving into the original text",
+    longDescription:
+      "A 'hacker decode' style text animation where every letter cycles through random glyphs before resolving into the original text, left to right with organic randomness. Plays automatically on mount and replays on hover or keyboard focus. Respects prefers-reduced-motion (shows plain text instantly), keeps screen readers happy by exposing the stable text via aria-label while hiding the animated glyphs, and supports custom glyph sets (e.g. binary '01'), custom durations, and any Tailwind styling via className. Monospace font prevents layout shift while glyphs cycle.",
+    thumbnail: "",
+    createdDate: "2026-11-12",
+    week: 3,
+    componentNumber: 9,
+    category: "Animation",
+    tags: ["Animation", "Text Effect", "Scramble", "Decode", "Interactive", "Accessibility"],
+    dependencies: "React 18+",
+    techStack: ["React", "TypeScript", "Tailwind CSS"],
+    files: [
+      {
+        name: "TextScramble.tsx",
+        language: "typescript",
+        content: `"use client";
+
+import { useCallback, useEffect, useRef, useState } from "react";
+
+interface TextScrambleProps {
+  text: string;
+  duration?: number; // total animation time in ms
+  scrambleChars?: string; // glyph set used while scrambling
+  replayOnHover?: boolean;
+  className?: string;
+}
+
+const DEFAULT_GLYPHS = "!<>-_\\\\/[]{}=+*^?#@$%&";
+
+export function TextScramble({
+  text,
+  duration = 1200,
+  scrambleChars = DEFAULT_GLYPHS,
+  replayOnHover = true,
+  className = "",
+}: TextScrambleProps) {
+  // Initial render shows the real text — SSR-safe, scrambling starts client-side
+  const [display, setDisplay] = useState(text);
+  const intervalRef = useRef<number | null>(null);
+
+  const stop = () => {
+    if (intervalRef.current !== null) {
+      window.clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  };
+
+  const scramble = useCallback(() => {
+    // Respect users who prefer reduced motion
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setDisplay(text);
+      return;
+    }
+
+    stop();
+
+    const totalFrames = Math.max(10, Math.floor(duration / 30));
+    // Each letter resolves at its own frame: staggered left-to-right,
+    // plus a random offset so the resolve order feels organic
+    const resolveAt = text.split("").map(
+      (_, i) =>
+        Math.floor((i / text.length) * totalFrames * 0.6) +
+        Math.floor(Math.random() * totalFrames * 0.4)
+    );
+
+    let frame = 0;
+    intervalRef.current = window.setInterval(() => {
+      frame++;
+      const out = text
+        .split("")
+        .map((ch, i) => {
+          if (ch === " ") return " ";
+          if (frame >= resolveAt[i]) return ch;
+          return scrambleChars[
+            Math.floor(Math.random() * scrambleChars.length)
+          ];
+        })
+        .join("");
+
+      setDisplay(out);
+
+      if (frame >= totalFrames) {
+        stop();
+        setDisplay(text);
+      }
+    }, 30);
+  }, [text, duration, scrambleChars]);
+
+  useEffect(() => {
+    scramble();
+    return stop;
+  }, [scramble]);
+
+  return (
+    <span
+      className={\`inline-block font-mono outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-emerald-500 rounded \${className}\`}
+      onMouseEnter={replayOnHover ? scramble : undefined}
+      onFocus={replayOnHover ? scramble : undefined}
+      tabIndex={replayOnHover ? 0 : undefined}
+      aria-label={text}
+    >
+      {/* Screen readers get the stable text from aria-label above;
+          the animated glyphs are hidden from them */}
+      <span aria-hidden="true">{display}</span>
+    </span>
+  );
+}`,
+      },
+      {
+        name: "index.ts",
+        language: "typescript",
+        content: `export { TextScramble } from './TextScramble'`,
+      },
+    ],
+    prompt: `Create a text scramble animation component in React with these features:
+
+Core Effect:
+- Letters randomly cycle through scramble glyphs (!<>-_/[]{}=+*^?#@$%&)
+  before resolving into the original text
+- Letters resolve left-to-right with a random per-letter offset so the
+  decode order feels organic, not mechanical
+- Runs at ~30ms per frame; total duration configurable (default 1200ms)
+- Spaces are never scrambled (preserves word shape)
+- Plays automatically on mount
+- Replays on hover and on keyboard focus (optional via prop)
+
+Implementation Details:
+- setInterval-based frame loop stored in a ref, cleaned up on unmount
+  and whenever a new scramble starts (no overlapping intervals)
+- Per-letter resolve frame: (index / length) * 60% of frames + random 40%
+- Initial render shows the real text so SSR output is deterministic —
+  scrambling only starts client-side in useEffect (no hydration errors)
+- Monospace font (font-mono) so cycling glyphs don't cause layout shift
+
+Accessibility:
+- Respects prefers-reduced-motion: shows plain text instantly, no animation
+- aria-label on the wrapper exposes the stable final text to screen readers
+- The animated glyph span is aria-hidden so screen readers never announce
+  scramble garbage
+- Focusable with a visible focus-visible ring when replay is enabled
+
+Props:
+- text (required): the text to reveal
+- duration (default 1200): total animation time in ms
+- scrambleChars (default glyph set): custom glyphs, e.g. "01" for binary style
+- replayOnHover (default true): replay on hover/focus
+- className: pass any Tailwind classes for size/color/weight
+
+TypeScript, Tailwind CSS, zero dependencies.`,
+    codeLink: "https://github.com/mun7594/muntasir.lofistack.portfolio",
+    liveLink: "https://muntasir-lofistack-portfolio.vercel.app/components/text-scramble",
+    accessibility:
+      "Respects prefers-reduced-motion by skipping the animation entirely. The stable final text is exposed via aria-label while the animated glyphs are aria-hidden, so screen readers never announce scramble characters. Keyboard users can Tab to the text to replay the effect, with a visible focus ring. Monospace rendering prevents layout shift.",
+    relatedProps: [
+      {
+        name: "text",
+        type: "string",
+        default: "required",
+        description: "The text that gets revealed",
+      },
+      {
+        name: "duration",
+        type: "number",
+        default: "1200",
+        description: "Total animation time in milliseconds",
+      },
+      {
+        name: "scrambleChars",
+        type: "string",
+        default: '"!<>-_\\\\/[]{}=+*^?#@$%&"',
+        description: "Glyph set used while scrambling (e.g. '01' for binary)",
+      },
+      {
+        name: "replayOnHover",
+        type: "boolean",
+        default: "true",
+        description: "Replay the animation on hover / keyboard focus",
+      },
+      {
+        name: "className",
+        type: "string",
+        default: '""',
+        description: "Extra Tailwind classes for size, color, and weight",
+      },
+    ],
+    features: [
+      "Hacker-style decode animation",
+      "Letters resolve left-to-right with organic randomness",
+      "Auto-plays on mount, replays on hover/focus",
+      "Custom glyph sets (e.g. binary '01')",
+      "Configurable duration",
+      "Respects prefers-reduced-motion",
+      "Screen-reader safe (stable aria-label, glyphs hidden)",
+      "SSR-safe — no hydration errors",
+      "No layout shift (monospace rendering)",
+      "Clean interval cleanup on unmount",
+      "Style via className — works at any size",
+      "TypeScript support, zero dependencies",
+    ],
+  },
 ];
 
 // Helper to get latest components (for homepage)
