@@ -2365,6 +2365,170 @@ TypeScript, Tailwind CSS, zero dependencies.`,
       "TypeScript support, zero dependencies",
     ],
   },
+  {
+    id: "17",
+    slug: "magnetic-elements",
+    name: "Magnetic Elements",
+    type: "interaction",
+    description: "Letters, icons and buttons get pulled toward the cursor and spring back elastically",
+    longDescription:
+      "A reusable magnetic wrapper that makes any element — buttons, icons, even individual letters — get physically pulled toward the cursor as it moves nearby, then spring back to center with an elastic overshoot when the cursor leaves. The pull strength is configurable per element, and the hover zone can be padded so the magnetism starts before the cursor touches the element itself. Styles are driven directly through refs (zero React re-renders per mousemove), wrapped elements keep their own semantics and focus behavior, and the effect disables itself for users who prefer reduced motion.",
+    thumbnail: "",
+    createdDate: "2026-11-13",
+    week: 3,
+    componentNumber: 12,
+    category: "Interaction",
+    tags: ["Interactive", "Magnetic", "Hover Effect", "Micro-interaction", "Buttons", "Creative"],
+    dependencies: "React 18+",
+    techStack: ["React", "TypeScript", "Tailwind CSS"],
+    files: [
+      {
+        name: "MagneticElement.tsx",
+        language: "typescript",
+        content: `"use client";
+
+import { useRef, ReactNode } from "react";
+
+interface MagneticElementProps {
+  children: ReactNode; // anything: buttons, icons, letters
+  strength?: number; // 0–1, how strongly it follows the cursor
+  className?: string; // extra classes on the hover zone (e.g. padding)
+}
+
+export function MagneticElement({
+  children,
+  strength = 0.4,
+  className = "",
+}: MagneticElementProps) {
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const innerRef = useRef<HTMLDivElement>(null);
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const wrap = wrapRef.current;
+    const inner = innerRef.current;
+    if (!wrap || !inner) return;
+
+    // Respect users who prefer reduced motion
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const rect = wrap.getBoundingClientRect();
+    const dx = e.clientX - (rect.left + rect.width / 2);
+    const dy = e.clientY - (rect.top + rect.height / 2);
+
+    // Short transition while following smooths out pointer jitter
+    inner.style.transition = "transform 0.15s ease-out";
+    inner.style.transform = \`translate(\${dx * strength}px, \${dy * strength}px)\`;
+  };
+
+  const handleMouseLeave = () => {
+    const inner = innerRef.current;
+    if (!inner) return;
+
+    // Springy elastic snap back to center
+    inner.style.transition =
+      "transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)";
+    inner.style.transform = "translate(0px, 0px)";
+  };
+
+  return (
+    <div
+      ref={wrapRef}
+      className={\`inline-block \${className}\`}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+    >
+      <div ref={innerRef} className="inline-block will-change-transform">
+        {children}
+      </div>
+    </div>
+  );
+}`,
+      },
+      {
+        name: "index.ts",
+        language: "typescript",
+        content: `export { MagneticElement } from './MagneticElement'`,
+      },
+    ],
+    prompt: `Create a magnetic element wrapper component in React where letters, icons
+and buttons get pulled toward the cursor:
+
+Core Effect:
+- Wrap ANY element (button, icon, single letter) to make it magnetic
+- As the cursor moves inside the hover zone, the element translates toward
+  the cursor: offset = (cursor - element center) * strength
+- Strength configurable per element (0–1, default 0.4)
+- When the cursor leaves, the element springs back to center with an
+  elastic overshoot: cubic-bezier(0.34, 1.56, 0.64, 1) over 0.5s
+- While following, use a short 0.15s ease-out transition so pointer jitter
+  is smoothed into fluid motion
+
+Architecture:
+- Two-layer structure: an outer wrapper acts as the hover/tracking zone,
+  an inner layer receives the transform — padding on the wrapper (via
+  className) widens the magnetic field so attraction starts BEFORE the
+  cursor touches the element
+- Styles driven directly via refs (element.style.transform) —
+  ZERO React re-renders per mousemove
+- will-change-transform for GPU compositing
+- getBoundingClientRect per move for accurate centers in any layout
+
+Composability:
+- children: ReactNode — works with buttons (which keep their own focus
+  rings, click handlers and semantics), emoji icons, or split text where
+  every letter is wrapped individually for a magnetic headline
+- className prop controls the hover zone size (e.g. p-2 for letters,
+  p-6 for buttons)
+
+Accessibility:
+- Purely decorative motion: wrapped interactive elements keep full keyboard
+  operability and their own focus styles
+- Respects prefers-reduced-motion — the pull effect is skipped entirely
+
+Demo should show three use cases: a headline where each letter is
+individually magnetic, a row of magnetic emoji icons, and two magnetic
+buttons with different colors.
+
+TypeScript, Tailwind CSS, zero dependencies.`,
+    codeLink: "https://github.com/mun7594/muntasir.lofistack.portfolio",
+    liveLink: "https://muntasir-lofistack-portfolio.vercel.app/components/magnetic-elements",
+    accessibility:
+      "The magnetism is purely decorative: wrapped buttons and links keep their full semantics, click handlers, keyboard operability and visible focus rings. The effect respects prefers-reduced-motion by disabling the pull entirely. No content is hidden or moved out of reach — elements always spring back to their resting position.",
+    relatedProps: [
+      {
+        name: "children",
+        type: "ReactNode",
+        default: "required",
+        description: "The element to make magnetic (button, icon, letter, etc.)",
+      },
+      {
+        name: "strength",
+        type: "number",
+        default: "0.4",
+        description: "How strongly the element follows the cursor (0–1)",
+      },
+      {
+        name: "className",
+        type: "string",
+        default: '""',
+        description: "Classes for the hover zone — padding widens the magnetic field",
+      },
+    ],
+    features: [
+      "Make any element magnetic — buttons, icons, letters",
+      "Elements pulled toward the cursor in real time",
+      "Elastic spring-back with overshoot on mouse leave",
+      "Configurable pull strength per element",
+      "Padded hover zones extend the magnetic field",
+      "Zero React re-renders (ref-driven transforms)",
+      "GPU-composited via will-change-transform",
+      "Wrapped elements keep their own semantics and focus",
+      "Respects prefers-reduced-motion",
+      "Per-letter magnetic headlines supported",
+      "TypeScript support",
+      "Zero dependencies",
+    ],
+  },
 ];
 
 // Helper to get latest components (for homepage)

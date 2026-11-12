@@ -15,6 +15,7 @@ import PixelShatterLogoDemo from "./PixelShatterLogoDemo";
 import TextScrambleDemo from "./TextScrambleDemo";
 import LiquidMorphDemo from "./LiquidMorphDemo";
 import SpotlightRevealDemo from "./SpotlightRevealDemo";
+import MagneticElementDemo from "./MagneticElementDemo";
 
 export function ComponentDetailClient({
   component,
@@ -268,6 +269,8 @@ export function ComponentDetailClient({
                     <LiquidMorphDemo />
                   ) : slug === "spotlight-reveal" ? (
                     <SpotlightRevealDemo />
+                  ) : slug === "magnetic-elements" ? (
+                    <MagneticElementDemo />
                   ) : (
                     <div className="bg-white rounded-lg p-8 h-96 flex items-center justify-center border border-gray-300">
                       <div className="text-center">
