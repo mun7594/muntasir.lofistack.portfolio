@@ -1,13 +1,10 @@
 import Hero from "@/lib/components/Hero";
 import ComponentCard from "@/lib/components/ComponentCard";
-import AgentCard from "@/lib/components/AgentCard";
 import { getLatestComponents, components } from "@/lib/data/components";
-import { getLatestAgents } from "@/lib/data/agents";
 import Link from "next/link";
 
 export default function Home() {
   const latestComponents = getLatestComponents(4);
-  const latestAgents = getLatestAgents(4);
 
   return (
     <>
@@ -64,21 +61,15 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Agents Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            {latestAgents.map((agent) => (
-              <AgentCard key={agent.id} agent={agent} />
-            ))}
-          </div>
-
-          {/* Show All Button */}
-          <div className="flex justify-center">
-            <Link
-              href="/agents"
-              className="px-8 py-3 border-2 border-gray-900 text-gray-900 rounded-lg hover:bg-gray-900 hover:text-white transition-all duration-300 font-semibold"
-            >
-              View All Agents
-            </Link>
+          {/* Coming Soon */}
+          <div className="py-20 text-center border-2 border-dashed border-gray-200 rounded-2xl">
+            <p className="text-5xl mb-4">🤖</p>
+            <p className="text-3xl font-bold text-gray-400 tracking-wide">
+              Coming Soon
+            </p>
+            <p className="text-gray-400 mt-3">
+              AI agents are in the workshop — stay tuned!
+            </p>
           </div>
         </div>
       </section>

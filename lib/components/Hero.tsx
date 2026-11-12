@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { PixelExplodeImage } from "./PixelExplodeImage";
 
 export default function Hero() {
   return (
@@ -38,18 +38,16 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* Right Side - Profile Image */}
+          {/* Right Side - Profile Image (hover to explode into pixels) */}
           <div className="flex justify-center">
-            <div className="relative w-64 h-80 md:w-72 md:h-96 group">
-              <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl" />
-              <Image
-                src="/profile.jpg"
-                alt="Muntasir Hasan"
-                fill
-                className="object-cover rounded-lg shadow-lg group-hover:shadow-2xl transition-all duration-500"
-                priority
-              />
-            </div>
+            <PixelExplodeImage
+              src="/profile.jpg"
+              alt="Muntasir Hasan"
+              width={288}
+              height={384}
+              grid={12}
+              spread={450}
+            />
           </div>
         </div>
       </div>
