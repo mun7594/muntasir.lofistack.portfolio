@@ -2151,6 +2151,220 @@ TypeScript, Tailwind CSS, zero dependencies.`,
       "TypeScript support, zero dependencies",
     ],
   },
+  {
+    id: "16",
+    slug: "spotlight-reveal",
+    name: "Spotlight Reveal",
+    type: "interaction",
+    description: "Cursor acts like a flashlight that reveals hidden content in the dark",
+    longDescription:
+      "An interactive spotlight effect where the user's cursor becomes a flashlight sweeping across a dark area — hidden content only exists inside the light circle. Built with a CSS radial-gradient mask driven by CSS variables, updated through refs on mousemove so there are zero React re-renders while the light moves. Includes a soft warm glow that trails the cursor, touch support (drag to sweep the light), and full keyboard accessibility: focusing the area reveals everything, since keyboard users can't aim a cursor. Perfect for treasure hunts, 404 pages, easter eggs, and dramatic hero sections.",
+    thumbnail: "",
+    createdDate: "2026-11-13",
+    week: 3,
+    componentNumber: 11,
+    category: "Interaction",
+    tags: ["Interactive", "Spotlight", "Mask", "Hover Effect", "Creative", "Accessibility"],
+    dependencies: "React 18+",
+    techStack: ["React", "TypeScript", "Tailwind CSS", "CSS Masks"],
+    files: [
+      {
+        name: "SpotlightReveal.tsx",
+        language: "typescript",
+        content: `"use client";
+
+import { useRef, ReactNode } from "react";
+
+interface SpotlightRevealProps {
+  children: ReactNode; // the hidden content revealed by the flashlight
+  hint?: string; // dim text shown while nothing is revealed
+  radius?: number; // flashlight radius in px
+  className?: string; // container sizing (height etc.)
+}
+
+export function SpotlightReveal({
+  children,
+  hint = "🔦 Move your cursor to explore the dark…",
+  radius = 130,
+  className = "",
+}: SpotlightRevealProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const setSpot = (x: number, y: number, r: number) => {
+    const el = containerRef.current;
+    if (!el) return;
+    el.style.setProperty("--spot-x", \`\${x}px\`);
+    el.style.setProperty("--spot-y", \`\${y}px\`);
+    el.style.setProperty("--spot-r", \`\${r}px\`);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    setSpot(e.clientX - rect.left, e.clientY - rect.top, radius);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect || e.touches.length === 0) return;
+    const t = e.touches[0];
+    setSpot(t.clientX - rect.left, t.clientY - rect.top, radius);
+  };
+
+  const hide = () => {
+    const el = containerRef.current;
+    if (!el) return;
+    el.style.setProperty("--spot-r", "0px");
+  };
+
+  // Keyboard users can't aim a cursor — focus reveals everything
+  const revealAll = () => {
+    const el = containerRef.current;
+    if (!el) return;
+    el.style.setProperty("--spot-x", "50%");
+    el.style.setProperty("--spot-y", "50%");
+    el.style.setProperty("--spot-r", "2000px");
+  };
+
+  const maskStyle = {
+    WebkitMaskImage:
+      "radial-gradient(circle var(--spot-r, 0px) at var(--spot-x, 50%) var(--spot-y, 50%), black 40%, transparent 100%)",
+    maskImage:
+      "radial-gradient(circle var(--spot-r, 0px) at var(--spot-x, 50%) var(--spot-y, 50%), black 40%, transparent 100%)",
+  };
+
+  return (
+    <div
+      ref={containerRef}
+      className={\`relative overflow-hidden rounded-2xl bg-gray-950 cursor-none select-none outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-yellow-400 \${className}\`}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={hide}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={hide}
+      onFocus={revealAll}
+      onBlur={hide}
+      tabIndex={0}
+      role="group"
+      aria-label="Spotlight reveal area — focus to reveal the hidden content"
+    >
+      {/* Dim hint layer — what you see in the dark */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <p className="text-gray-600 text-sm md:text-base">{hint}</p>
+      </div>
+
+      {/* Hidden layer — only visible inside the flashlight circle */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={maskStyle}
+      >
+        {children}
+      </div>
+
+      {/* Soft flashlight glow following the cursor */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(circle calc(var(--spot-r, 0px) * 1.2) at var(--spot-x, 50%) var(--spot-y, 50%), rgba(255, 240, 180, 0.12), transparent 70%)",
+        }}
+      />
+    </div>
+  );
+}`,
+      },
+      {
+        name: "index.ts",
+        language: "typescript",
+        content: `export { SpotlightReveal } from './SpotlightReveal'`,
+      },
+    ],
+    prompt: `Create a spotlight reveal component in React where the cursor acts like a
+flashlight revealing hidden content:
+
+Core Effect:
+- A dark container where hidden content is completely invisible by default
+- The user's cursor becomes a flashlight: content only appears inside a
+  circular spotlight that follows the mouse
+- A dim hint message ("Move your cursor to explore the dark…") shows in the
+  dark so users know to interact
+- A soft warm glow (radial-gradient, ~rgba(255,240,180,0.12)) trails the
+  cursor at 1.2x the spotlight radius for a realistic flashlight feel
+- When the mouse leaves, the spotlight collapses to 0 and everything hides
+
+The Masking Technique (no libraries):
+- The hidden layer uses a CSS mask:
+  mask-image: radial-gradient(circle var(--spot-r) at var(--spot-x) var(--spot-y),
+  black 40%, transparent 100%) — include the -webkit- prefix
+- The spotlight position/radius live in CSS variables (--spot-x, --spot-y,
+  --spot-r) updated via element.style.setProperty on mousemove through a ref —
+  ZERO React re-renders while the light moves
+- Spotlight radius configurable via prop (default 130px)
+
+Interaction Support:
+- Mouse: spotlight follows cursor, cursor-none for immersion
+- Touch: drag finger to sweep the light (touchmove), hide on touchend
+- Keyboard: the container is focusable (tabIndex=0) and focusing it reveals
+  the ENTIRE hidden layer (radius expands to 2000px), because keyboard users
+  can't aim a cursor — blur hides it again
+- Visible focus-visible ring on the container
+
+Component API:
+- children: any hidden content (full layout freedom)
+- hint: customizable dim hint text
+- radius: flashlight size in px
+- className: container sizing
+
+Accessibility:
+- role="group" with an aria-label explaining focus reveals the content
+- Focus = full reveal (keyboard parity with mouse exploration)
+- select-none and pointer-events handled so layers don't trap clicks
+
+TypeScript, Tailwind CSS, zero dependencies.`,
+    codeLink: "https://github.com/mun7594/muntasir.lofistack.portfolio",
+    liveLink: "https://muntasir-lofistack-portfolio.vercel.app/components/spotlight-reveal",
+    accessibility:
+      "Keyboard users get full parity: focusing the container reveals the entire hidden layer (since a cursor can't be aimed by keyboard), with a visible focus ring, and blur re-hides it. Touch users sweep the light by dragging. role='group' with a descriptive aria-label explains the interaction. The hint text guides discovery for all users.",
+    relatedProps: [
+      {
+        name: "children",
+        type: "ReactNode",
+        default: "required",
+        description: "The hidden content revealed by the flashlight",
+      },
+      {
+        name: "hint",
+        type: "string",
+        default: '"🔦 Move your cursor to explore the dark…"',
+        description: "Dim text shown while nothing is revealed",
+      },
+      {
+        name: "radius",
+        type: "number",
+        default: "130",
+        description: "Flashlight radius in pixels",
+      },
+      {
+        name: "className",
+        type: "string",
+        default: '""',
+        description: "Tailwind classes for container sizing (height, width)",
+      },
+    ],
+    features: [
+      "Cursor becomes a flashlight revealing hidden content",
+      "CSS radial-gradient mask — no canvas, no libraries",
+      "Soft warm glow trails the cursor",
+      "Zero React re-renders while the light moves (CSS vars + refs)",
+      "Touch support — drag to sweep the light",
+      "Keyboard focus reveals everything (full a11y parity)",
+      "Customizable flashlight radius",
+      "Customizable hint text",
+      "Accepts any children as hidden content",
+      "Spotlight collapses when the mouse leaves",
+      "Perfect for easter eggs, 404 pages, hero sections",
+      "TypeScript support, zero dependencies",
+    ],
+  },
 ];
 
 // Helper to get latest components (for homepage)
