@@ -10,6 +10,7 @@ import StarRatingDemo from "./StarRatingDemo";
 import ProgressIndicatorDemo from "./ProgressIndicatorDemo";
 import PromptBarDemo from "./PromptBarDemo";
 import InfiniteMarqueeDemo from "./InfiniteMarqueeDemo";
+import ImageRevealCardDemo from "./ImageRevealCardDemo";
 
 export function ComponentDetailClient({
   component,
@@ -253,6 +254,8 @@ export function ComponentDetailClient({
                     <PromptBarDemo />
                   ) : slug === "infinite-marquee" ? (
                     <InfiniteMarqueeDemo />
+                  ) : slug === "image-reveal-card" ? (
+                    <ImageRevealCardDemo />
                   ) : (
                     <div className="bg-white rounded-lg p-8 h-96 flex items-center justify-center border border-gray-300">
                       <div className="text-center">

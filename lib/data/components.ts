@@ -1288,6 +1288,188 @@ Perfect for:
       "Lightweight and performant",
     ],
   },
+  {
+    id: "12",
+    slug: "image-reveal-card",
+    name: "Image Reveal Card",
+    type: "card",
+    description: "Image card with content overlay that slides up on hover or keyboard focus",
+    longDescription:
+      "An elegant image card component where a gradient overlay and content (title, description, action buttons) slide up smoothly on hover. The image zooms subtly for added depth. Fully keyboard accessible — the same reveal triggers on focus, so keyboard users get the identical experience. Perfect for portfolio grids, product showcases, team pages, and gallery layouts.",
+    thumbnail: "",
+    createdDate: "2026-11-12",
+    week: 3,
+    componentNumber: 7,
+    category: "Card",
+    tags: ["Card", "Hover Effect", "Image", "Overlay", "Animation", "Accessibility"],
+    dependencies: "React 18+",
+    techStack: ["React", "TypeScript", "Tailwind CSS"],
+    files: [
+      {
+        name: "ImageRevealCard.tsx",
+        language: "typescript",
+        content: `"use client";
+
+interface CardAction {
+  label: string;
+  onClick?: () => void;
+}
+
+interface ImageRevealCardProps {
+  image: string;
+  title: string;
+  description?: string;
+  category?: string;
+  actions?: CardAction[];
+}
+
+export function ImageRevealCard({
+  image,
+  title,
+  description,
+  category,
+  actions = [],
+}: ImageRevealCardProps) {
+  return (
+    <div
+      className="group relative w-full max-w-sm aspect-[4/5] rounded-2xl overflow-hidden shadow-lg focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-gray-900"
+      tabIndex={0}
+      aria-label={\`\${title} card\`}
+    >
+      {/* Image with zoom effect */}
+      <img
+        src={image}
+        alt={title}
+        className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-110 group-focus-within:scale-110 group-focus:scale-110"
+      />
+
+      {/* Gradient overlay — fades in on hover/focus */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 group-focus:opacity-100 transition-opacity duration-500" />
+
+      {/* Category badge — always visible */}
+      {category && (
+        <span className="absolute top-4 left-4 px-3 py-1 bg-white/90 backdrop-blur-sm text-gray-900 text-xs font-semibold rounded-full">
+          {category}
+        </span>
+      )}
+
+      {/* Content — slides up on hover/focus */}
+      <div className="absolute inset-x-0 bottom-0 p-6 translate-y-full group-hover:translate-y-0 group-focus-within:translate-y-0 group-focus:translate-y-0 transition-transform duration-500 ease-out">
+        <h3 className="text-xl font-bold text-white mb-2">{title}</h3>
+
+        {description && (
+          <p className="text-sm text-gray-200 mb-4 line-clamp-2">
+            {description}
+          </p>
+        )}
+
+        {actions.length > 0 && (
+          <div className="flex gap-3">
+            {actions.map((action) => (
+              <button
+                key={action.label}
+                onClick={action.onClick}
+                className="px-4 py-2 bg-white text-gray-900 text-sm font-semibold rounded-full hover:bg-gray-200 active:scale-95 transition-all focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black/50"
+              >
+                {action.label}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}`,
+      },
+      {
+        name: "index.ts",
+        language: "typescript",
+        content: `export { ImageRevealCard } from './ImageRevealCard'`,
+      },
+    ],
+    prompt: `Create an image card with hover reveal component in React with these features:
+
+Core Functionality:
+- Full-bleed image fills the card (4:5 aspect ratio, rounded-2xl corners)
+- On hover: gradient overlay fades in from the bottom
+- On hover: content panel (title, description, action buttons) slides up from below
+- On hover: image zooms in subtly (scale-110) for depth
+- Optional category badge always visible at top-left
+- Optional action buttons (white pills) inside the revealed panel
+
+Keyboard Accessibility:
+- Card is focusable (tabIndex=0) with a visible focus ring
+- The SAME reveal animation triggers on keyboard focus (focus / focus-within),
+  so keyboard users get the identical experience as mouse users
+- Action buttons have their own focus rings and are reachable by Tab
+- aria-label on the card, proper alt text on the image
+
+Visual Design:
+- Gradient overlay: from-black/90 via-black/40 to transparent
+- White title text, light gray description with 2-line clamp
+- Category badge: white semi-transparent with backdrop blur
+- Action buttons: white rounded-full pills with hover and active:scale-95 states
+- Smooth 500ms ease-out transitions on all animations
+
+Props:
+- image (required): image URL
+- title (required): card heading
+- description (optional): supporting text
+- category (optional): badge label
+- actions (optional): array of { label, onClick } buttons
+
+TypeScript with full prop typing, Tailwind CSS only, no external libraries.`,
+    codeLink: "https://github.com/mun7594/muntasir.lofistack.portfolio",
+    liveLink: "https://muntasir-lofistack-portfolio.vercel.app/components/image-reveal-card",
+    accessibility:
+      "Card is keyboard focusable (tabIndex=0) with visible focus ring, and the reveal animation triggers on focus as well as hover — keyboard users get the full experience. Proper alt text on images, aria-label on the card, focus rings on action buttons, and high-contrast white text over a dark gradient overlay.",
+    relatedProps: [
+      {
+        name: "image",
+        type: "string",
+        default: "required",
+        description: "URL of the card image",
+      },
+      {
+        name: "title",
+        type: "string",
+        default: "required",
+        description: "Card heading shown in the reveal panel",
+      },
+      {
+        name: "description",
+        type: "string",
+        default: "undefined",
+        description: "Supporting text (clamped to 2 lines)",
+      },
+      {
+        name: "category",
+        type: "string",
+        default: "undefined",
+        description: "Badge label shown at the top-left of the card",
+      },
+      {
+        name: "actions",
+        type: "{ label: string; onClick?: () => void }[]",
+        default: "[]",
+        description: "Action buttons rendered inside the reveal panel",
+      },
+    ],
+    features: [
+      "Content slides up smoothly on hover",
+      "Identical reveal on keyboard focus (full a11y parity)",
+      "Subtle image zoom effect (scale-110)",
+      "Gradient overlay for text readability",
+      "Optional always-visible category badge",
+      "Configurable action buttons with press feedback",
+      "2-line description clamp keeps layout tidy",
+      "500ms ease-out transitions throughout",
+      "Visible focus rings on card and buttons",
+      "TypeScript support",
+      "Tailwind CSS only — zero dependencies",
+      "Perfect for portfolios, products, and galleries",
+    ],
+  },
 ];
 
 // Helper to get latest components (for homepage)
