@@ -2764,6 +2764,291 @@ TypeScript, Tailwind CSS, zero dependencies.`,
       "TypeScript support, zero dependencies",
     ],
   },
+  {
+    id: "19",
+    slug: "crumpled-paper",
+    name: "Crumpled Paper",
+    type: "animation",
+    description: "Image folds into a crumpled paper ball on click and unfolds again",
+    longDescription:
+      "A playful 3D effect where an image crumples into a paper ball and smooths back out on click. The image is sliced into a grid of background-position tiles; when crumpling, every tile flies toward the center with random 3D rotations (rotate, rotateX, rotateY), shrinks, and dims with random brightness — faking the creases and shadows of real crumpled paper. Distance-based delays make the edges fold in first, just like a real sheet, and a soft shadow fades in under the ball. Toggled by click, tap, or Enter/Space with proper button semantics. All randomness is deterministic (sine-hash), so SSR output matches the client exactly.",
+    thumbnail: "",
+    createdDate: "2026-11-13",
+    week: 7,
+    componentNumber: 14,
+    category: "Animation",
+    tags: ["Animation", "3D", "Crumple", "Image Effect", "Interactive", "Creative"],
+    dependencies: "React 18+",
+    techStack: ["React", "TypeScript", "Tailwind CSS", "CSS 3D Transforms"],
+    files: [
+      {
+        name: "CrumpledPaper.tsx",
+        language: "typescript",
+        content: `"use client";
+
+import { useEffect, useMemo, useState } from "react";
+
+interface CrumpledPaperProps {
+  src: string; // image URL
+  alt: string; // image description
+  width?: number; // px
+  height?: number; // px
+  grid?: number; // tiles per side (grid x grid)
+}
+
+// Deterministic pseudo-random — identical on server and client,
+// so SSR markup matches and there are no hydration errors
+const pseudoRandom = (seed: number) => {
+  const x = Math.sin(seed * 12.9898 + 78.233) * 43758.5453;
+  return x - Math.floor(x);
+};
+
+interface Tile {
+  col: number;
+  row: number;
+  tx: number;
+  ty: number;
+  rot: number;
+  rotX: number;
+  rotY: number;
+  scale: number;
+  bright: number;
+  delay: number;
+}
+
+const buildTiles = (grid: number, width: number, height: number): Tile[] => {
+  const tiles: Tile[] = [];
+  const tw = width / grid;
+  const th = height / grid;
+  const cx = width / 2;
+  const cy = height / 2;
+  const maxD = Math.hypot(cx, cy);
+  const ballRadius = Math.min(width, height) * 0.18;
+  let i = 0;
+
+  for (let row = 0; row < grid; row++) {
+    for (let col = 0; col < grid; col++) {
+      const tileCx = col * tw + tw / 2;
+      const tileCy = row * th + th / 2;
+      // Each tile gets a spot inside the "paper ball" cluster at the center
+      const angle = pseudoRandom(i * 7 + 1) * Math.PI * 2;
+      const rad = Math.sqrt(pseudoRandom(i * 7 + 2)) * ballRadius;
+      const d = Math.hypot(tileCx - cx, tileCy - cy);
+
+      tiles.push({
+        col,
+        row,
+        tx: cx - tileCx + Math.cos(angle) * rad,
+        ty: cy - tileCy + Math.sin(angle) * rad,
+        rot: (pseudoRandom(i * 7 + 3) - 0.5) * 160,
+        rotX: (pseudoRandom(i * 7 + 4) - 0.5) * 140,
+        rotY: (pseudoRandom(i * 7 + 5) - 0.5) * 140,
+        scale: 0.25 + pseudoRandom(i * 7 + 6) * 0.2,
+        // Random brightness fakes the creases and shadows of crumpled paper
+        bright: 0.55 + pseudoRandom(i * 7 + 7) * 0.5,
+        // Edges fold in first, center last — like a real crumple
+        delay: (1 - d / maxD) * 0.25,
+      });
+      i++;
+    }
+  }
+
+  return tiles;
+};
+
+export function CrumpledPaper({
+  src,
+  alt,
+  width = 420,
+  height = 280,
+  grid = 10,
+}: CrumpledPaperProps) {
+  const [crumpled, setCrumpled] = useState(false);
+  const [reduceMotion, setReduceMotion] = useState(false);
+  const tiles = useMemo(
+    () => buildTiles(grid, width, height),
+    [grid, width, height]
+  );
+  const tw = width / grid;
+  const th = height / grid;
+
+  useEffect(() => {
+    setReduceMotion(
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    );
+  }, []);
+
+  const toggle = () => setCrumpled((c) => !c);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      toggle();
+    }
+  };
+
+  return (
+    <div
+      className="relative cursor-pointer select-none outline-none focus-visible:ring-2 focus-visible:ring-offset-4 focus-visible:ring-amber-500 rounded-lg"
+      style={{ width, height, perspective: 900 }}
+      onClick={toggle}
+      onKeyDown={handleKeyDown}
+      tabIndex={0}
+      role="button"
+      aria-pressed={crumpled}
+      aria-label={\`\${alt} — press to \${crumpled ? "unfold" : "crumple"} the image\`}
+    >
+      {/* Soft shadow under the paper ball */}
+      <div
+        className="absolute left-1/2 bottom-6 -translate-x-1/2 w-1/3 h-5 bg-black/30 rounded-full blur-md transition-opacity duration-700 pointer-events-none"
+        style={{ opacity: crumpled ? 1 : 0 }}
+        aria-hidden="true"
+      />
+
+      {/* The image, sliced into grid x grid tiles */}
+      <div
+        className="absolute inset-0"
+        style={{ transformStyle: "preserve-3d" }}
+        aria-hidden="true"
+      >
+        {tiles.map((t, idx) => (
+          <div
+            key={idx}
+            className="absolute"
+            style={{
+              left: t.col * tw,
+              top: t.row * th,
+              width: tw + 0.5,
+              height: th + 0.5,
+              backgroundImage: \`url(\${src})\`,
+              backgroundSize: \`\${width}px \${height}px\`,
+              backgroundPosition: \`-\${t.col * tw}px -\${t.row * th}px\`,
+              borderRadius: crumpled ? "30%" : "0%",
+              filter: crumpled ? \`brightness(\${t.bright})\` : "brightness(1)",
+              transform: crumpled
+                ? \`translate3d(\${t.tx}px, \${t.ty}px, 0) rotate(\${t.rot}deg) rotateX(\${t.rotX}deg) rotateY(\${t.rotY}deg) scale(\${t.scale})\`
+                : "none",
+              transition: reduceMotion
+                ? "none"
+                : \`transform 0.9s cubic-bezier(0.65, 0, 0.35, 1) \${t.delay}s, filter 0.9s ease \${t.delay}s, border-radius 0.9s ease \${t.delay}s\`,
+            }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}`,
+      },
+      {
+        name: "index.ts",
+        language: "typescript",
+        content: `export { CrumpledPaper } from './CrumpledPaper'`,
+      },
+    ],
+    prompt: `Create a crumpled paper animation component in React where an image folds
+into a crumpled paper ball and unfolds again:
+
+Core Effect:
+- An image that, on click, crumples into a paper ball at the center of its
+  container — and smooths back out flat on the next click
+- The crumple must look physical: pieces fold inward with 3D rotations,
+  the ball has visible "creases", and a soft shadow appears beneath it
+- Edges fold in FIRST, center last — like a real sheet of paper being
+  crushed in a fist (distance-based transition delays)
+
+The Tile Technique (no WebGL, no libraries):
+- Slice the image into a grid of tiles (default 10x10 = 100 divs), each
+  showing its slice via background-image + background-size (full image
+  dimensions) + negative background-position
+- Crumpled state per tile:
+  * translate3d toward the container center, plus a random offset within a
+    ball radius (~18% of the smaller dimension) — sqrt-distributed so tiles
+    fill the ball evenly
+  * random rotate (±80°), rotateX (±70°), rotateY (±70°) under a 900px
+    perspective with preserve-3d for real 3D depth
+  * scale down to 0.25–0.45
+  * random brightness 0.55–1.05 — this fakes the creases and self-shadows
+    of crumpled paper
+  * border-radius morphs to 30% so the ball silhouette looks rounded
+- Flat state: transform none, brightness 1, square corners
+- Transition: 0.9s cubic-bezier(0.65, 0, 0.35, 1) with per-tile delay
+  (1 - distanceFromCenter/maxDistance) * 0.25s
+- A blurred shadow ellipse fades in under the ball while crumpled
+
+SSR Safety:
+- All per-tile randomness uses a DETERMINISTIC sine-hash pseudo-random
+  function seeded by tile index — never Math.random() — so server and
+  client markup match exactly (no Next.js hydration errors)
+- Tile data memoized with useMemo
+
+Interaction & Accessibility:
+- Click or tap toggles crumple/unfold
+- Keyboard: Enter and Space toggle (with preventDefault on Space),
+  role="button", aria-pressed reflects the state, visible focus ring
+- aria-label describes the action ("press to crumple/unfold the image")
+- Tiles are aria-hidden; the accessible name carries the image description
+- Respects prefers-reduced-motion: state still toggles but transitions are
+  disabled (instant switch)
+
+Props:
+- src (required): image URL
+- alt (required): image description for the accessible label
+- width (default 420), height (default 280): container size in px
+- grid (default 10): tiles per side
+
+TypeScript, Tailwind CSS + inline styles for per-tile transforms, zero
+dependencies.`,
+    codeLink: "https://github.com/mun7594/muntasir.lofistack.portfolio",
+    liveLink: "https://muntasir-lofistack-portfolio.vercel.app/components/crumpled-paper",
+    accessibility:
+      "Proper button semantics: role='button' with aria-pressed state, Enter/Space keyboard toggling, and a visible focus ring. The aria-label carries the image description and the available action. Decorative tiles are aria-hidden. Respects prefers-reduced-motion by disabling transitions — the toggle still works, it just switches instantly.",
+    relatedProps: [
+      {
+        name: "src",
+        type: "string",
+        default: "required",
+        description: "URL of the image to crumple",
+      },
+      {
+        name: "alt",
+        type: "string",
+        default: "required",
+        description: "Image description used in the accessible label",
+      },
+      {
+        name: "width",
+        type: "number",
+        default: "420",
+        description: "Container width in pixels",
+      },
+      {
+        name: "height",
+        type: "number",
+        default: "280",
+        description: "Container height in pixels",
+      },
+      {
+        name: "grid",
+        type: "number",
+        default: "10",
+        description: "Tiles per side (grid x grid total pieces)",
+      },
+    ],
+    features: [
+      "Image crumples into a 3D paper ball on click",
+      "Unfolds back to a flat image on the next click",
+      "Edges fold in first via distance-based delays",
+      "Real 3D: rotateX/rotateY under perspective with preserve-3d",
+      "Random brightness fakes paper creases and shadows",
+      "Soft drop shadow fades in under the ball",
+      "100 tiles sliced with background-position — no WebGL",
+      "Deterministic randomness — zero hydration errors",
+      "Click, tap, Enter and Space all toggle the effect",
+      "aria-pressed button semantics + focus ring",
+      "Respects prefers-reduced-motion",
+      "TypeScript support, zero dependencies",
+    ],
+  },
 ];
 
 // Helper to get latest components (for homepage)

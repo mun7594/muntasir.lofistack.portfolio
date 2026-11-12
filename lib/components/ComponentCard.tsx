@@ -87,6 +87,11 @@ export default function ComponentCard({ component }: ComponentCardProps) {
                 <p className="text-gray-700 font-bold text-lg">🔍</p>
                 <p className="text-gray-600 text-sm">Magnifying Lens</p>
               </div>
+            ) : component.slug === "crumpled-paper" ? (
+              <div className="text-center">
+                <p className="text-gray-700 font-bold text-lg">📄</p>
+                <p className="text-gray-600 text-sm">Crumpled Paper</p>
+              </div>
             ) : (
               <svg
                 className="absolute inset-0 w-full h-full text-gray-300 p-8"
