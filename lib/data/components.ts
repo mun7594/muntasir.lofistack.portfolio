@@ -3326,6 +3326,231 @@ TypeScript, Tailwind CSS, zero dependencies.`,
       "TypeScript support, zero dependencies",
     ],
   },
+  {
+    id: "21",
+    slug: "horizontal-scroll-gallery",
+    name: "Horizontal Scroll Gallery",
+    type: "gallery",
+    description: "Vertical scrolling drives a pinned gallery that moves horizontally",
+    longDescription:
+      "A scroll-driven gallery where the section pins to the viewport while the user scrolls vertically, and that scroll progress translates a track of cards horizontally — the signature 'scroll sideways' effect seen on award-winning sites. Built with pure CSS sticky positioning plus a scroll listener: the outer section's extra height defines the horizontal travel distance, and the track's translate3d is computed from scroll progress each frame (throttled through requestAnimationFrame, applied via refs with zero React re-renders). Cards support gradient backgrounds or images, numbered overlays, and a live progress bar. Because it's driven by native page scroll, keyboard and assistive-tech users control it exactly like any page — no scroll hijacking of input.",
+    thumbnail: "",
+    createdDate: "2026-11-13",
+    week: 8,
+    componentNumber: 16,
+    category: "Gallery",
+    tags: ["Gallery", "Scroll-Driven", "Sticky", "Horizontal Scroll", "Showcase", "Interactive"],
+    dependencies: "React 18+",
+    techStack: ["React", "TypeScript", "Tailwind CSS"],
+    files: [
+      {
+        name: "HorizontalScrollGallery.tsx",
+        language: "typescript",
+        content: `"use client";
+
+import { useEffect, useRef } from "react";
+
+export interface GalleryItem {
+  title: string;
+  subtitle?: string;
+  gradient?: string; // Tailwind gradient classes for the card background
+  image?: string; // optional image URL (overrides gradient)
+}
+
+interface HorizontalScrollGalleryProps {
+  items: GalleryItem[];
+  heading?: string;
+}
+
+export function HorizontalScrollGallery({
+  items,
+  heading = "Keep scrolling ↓ — the gallery moves sideways",
+}: HorizontalScrollGalleryProps) {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const progressRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    const track = trackRef.current;
+    const progressBar = progressRef.current;
+    if (!section || !track) return;
+
+    let raf = 0;
+
+    const update = () => {
+      const rect = section.getBoundingClientRect();
+      const scrollable = rect.height - window.innerHeight;
+      if (scrollable <= 0) return;
+
+      // 0 when the section top hits the viewport top, 1 when its bottom
+      // reaches the viewport bottom
+      const progress = Math.min(1, Math.max(0, -rect.top / scrollable));
+
+      const viewportW = track.parentElement?.clientWidth ?? 0;
+      const shift = Math.max(0, track.scrollWidth - viewportW) * progress;
+      track.style.transform = \`translate3d(\${-shift}px, 0, 0)\`;
+
+      if (progressBar) progressBar.style.width = \`\${progress * 100}%\`;
+    };
+
+    const onScroll = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(update);
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    update();
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
+  return (
+    // The tall section: its extra height IS the horizontal scroll distance
+    <div
+      ref={sectionRef}
+      style={{ height: \`\${100 + items.length * 60}vh\` }}
+      role="region"
+      aria-label="Horizontal scroll gallery — scroll the page to browse"
+    >
+      {/* Sticky viewport: pinned while the section scrolls past */}
+      <div className="sticky top-0 h-screen flex flex-col justify-center overflow-hidden">
+        <p className="text-center text-sm font-medium text-gray-500 mb-6">
+          {heading}
+        </p>
+
+        {/* The horizontally-moving track */}
+        <div ref={trackRef} className="flex gap-6 px-8 will-change-transform">
+          {items.map((item, i) => (
+            <div
+              key={i}
+              className={\`relative flex-shrink-0 w-[min(70vw,24rem)] h-[55vh] rounded-3xl overflow-hidden shadow-xl flex flex-col justify-end p-8 \${
+                item.image
+                  ? "bg-gray-900"
+                  : \`bg-gradient-to-br \${item.gradient ?? "from-gray-700 to-gray-900"}\`
+              }\`}
+            >
+              {item.image && (
+                <img
+                  src={item.image}
+                  alt=""
+                  className="absolute inset-0 w-full h-full object-cover opacity-80"
+                />
+              )}
+              <span className="absolute top-6 left-8 text-6xl font-black text-white/25">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <div className="relative">
+                <h3 className="text-2xl font-bold text-white">{item.title}</h3>
+                {item.subtitle && (
+                  <p className="text-white/70 mt-1">{item.subtitle}</p>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Progress bar */}
+        <div className="mx-auto mt-8 w-48 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+          <div
+            ref={progressRef}
+            className="h-full bg-gray-900 rounded-full"
+            style={{ width: "0%" }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}`,
+      },
+      {
+        name: "index.ts",
+        language: "typescript",
+        content: `export { HorizontalScrollGallery } from './HorizontalScrollGallery'`,
+      },
+    ],
+    prompt: `Create a horizontal scroll gallery component in React where vertical
+scrolling controls a horizontally-moving gallery:
+
+Core Effect:
+- As the user scrolls DOWN the page, the gallery section pins to the
+  viewport and its cards slide HORIZONTALLY (right to left)
+- When the horizontal travel completes, the section unpins and normal
+  vertical scrolling resumes
+- A progress bar below the cards fills as the gallery advances
+
+The Pin + Translate Technique (no libraries):
+- Outer section height = (100 + items * 60)vh — the extra height beyond one
+  viewport IS the scroll distance that drives the horizontal motion
+- Inside it, a sticky top-0 h-screen viewport stays pinned while the outer
+  section scrolls past, with overflow-hidden clipping the track
+- Scroll progress = clamp(-section.top / (section.height - viewportHeight))
+- Track transform: translate3d(-(trackScrollWidth - viewportWidth) *
+  progress, 0, 0) — maps 0→1 progress to full horizontal travel
+- Scroll listener is passive and throttled through requestAnimationFrame;
+  transforms are applied via refs — ZERO React re-renders while scrolling
+- Recalculates on window resize; rAF and listeners cleaned up on unmount
+
+Card Design:
+- Data-driven items: { title, subtitle?, gradient?, image? }
+- Cards: w-[min(70vw,24rem)], h-[55vh], rounded-3xl, shadow, content
+  anchored at the bottom
+- Gradient backgrounds via Tailwind classes, or a cover image with a dark
+  overlay for text contrast
+- Oversized translucent index numbers (01, 02, …) as a design accent
+- will-change-transform on the track for GPU compositing
+
+Accessibility:
+- Driven by NATIVE page scroll — keyboard users (arrow keys, space, PgDn)
+  and screen-reader users control it like any normal page; no wheel
+  hijacking, no preventDefault on user input
+- role="region" with a descriptive aria-label
+- Decorative card images use empty alt; card text is real DOM text
+- A hint line tells users to keep scrolling
+
+Props:
+- items (required): array of { title, subtitle?, gradient?, image? }
+- heading: the hint text shown above the track
+
+TypeScript, Tailwind CSS, zero dependencies.`,
+    codeLink: "https://github.com/mun7594/muntasir.lofistack.portfolio",
+    liveLink: "https://muntasir-lofistack-portfolio.vercel.app/components/horizontal-scroll-gallery",
+    accessibility:
+      "Driven entirely by native page scroll — no wheel hijacking or preventDefault — so keyboard users (arrow keys, space, Page Down) and assistive technology control it exactly like a normal page. role='region' with a descriptive aria-label, a visible hint explains the interaction, decorative images use empty alt, and all card text is real DOM text available to screen readers.",
+    relatedProps: [
+      {
+        name: "items",
+        type: "{ title: string; subtitle?: string; gradient?: string; image?: string }[]",
+        default: "required",
+        description: "Cards to display in the gallery",
+      },
+      {
+        name: "heading",
+        type: "string",
+        default: '"Keep scrolling ↓ — the gallery moves sideways"',
+        description: "Hint text shown above the track",
+      },
+    ],
+    features: [
+      "Vertical scroll drives horizontal gallery motion",
+      "Section pins while the cards travel, then releases",
+      "Pure CSS sticky + scroll math — no libraries",
+      "Live progress bar synced to gallery position",
+      "Cards with gradients or cover images",
+      "Oversized numbered design accents",
+      "Zero React re-renders while scrolling (ref-driven)",
+      "Passive, rAF-throttled scroll listener",
+      "Recalculates on resize",
+      "No scroll hijacking — keyboard & a11y friendly",
+      "Data-driven card API",
+      "TypeScript support, zero dependencies",
+    ],
+  },
 ];
 
 // Helper to get latest components (for homepage)
