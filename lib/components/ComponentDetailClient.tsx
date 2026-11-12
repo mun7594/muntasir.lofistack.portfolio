@@ -18,6 +18,7 @@ import SpotlightRevealDemo from "./SpotlightRevealDemo";
 import MagneticElementDemo from "./MagneticElementDemo";
 import MagnifyingLensDemo from "./MagnifyingLensDemo";
 import CrumpledPaperDemo from "./CrumpledPaperDemo";
+import GooeyImageTransitionDemo from "./GooeyImageTransitionDemo";
 
 export function ComponentDetailClient({
   component,
@@ -277,6 +278,8 @@ export function ComponentDetailClient({
                     <MagnifyingLensDemo />
                   ) : slug === "crumpled-paper" ? (
                     <CrumpledPaperDemo />
+                  ) : slug === "gooey-image-transition" ? (
+                    <GooeyImageTransitionDemo />
                   ) : (
                     <div className="bg-white rounded-lg p-8 h-96 flex items-center justify-center border border-gray-300">
                       <div className="text-center">
