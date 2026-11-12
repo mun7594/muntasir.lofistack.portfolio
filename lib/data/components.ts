@@ -2529,6 +2529,241 @@ TypeScript, Tailwind CSS, zero dependencies.`,
       "Zero dependencies",
     ],
   },
+  {
+    id: "18",
+    slug: "magnifying-lens",
+    name: "Magnifying Lens",
+    type: "interaction",
+    description: "Cursor becomes a magnifying glass that zooms into text or images",
+    longDescription:
+      "A realistic magnifying glass effect where a circular lens follows the cursor, showing a zoomed view of whatever sits beneath it — works on images, text, or any React children. The technique: the content is rendered twice, and the second copy lives inside a clipped circle, scaled up and translated each frame so the point under the cursor lands exactly at the lens center. No canvas, no screenshots, no libraries. Includes touch support (drag to move the lens) and a full keyboard mode: focus the area and steer the lens with arrow keys, Escape hides it. All updates are ref-driven with zero React re-renders.",
+    thumbnail: "",
+    createdDate: "2026-11-13",
+    week: 3,
+    componentNumber: 13,
+    category: "Interaction",
+    tags: ["Interactive", "Magnifier", "Zoom", "Lens", "Hover Effect", "Accessibility"],
+    dependencies: "React 18+",
+    techStack: ["React", "TypeScript", "Tailwind CSS"],
+    files: [
+      {
+        name: "MagnifyingLens.tsx",
+        language: "typescript",
+        content: `"use client";
+
+import { useRef, ReactNode } from "react";
+
+interface MagnifyingLensProps {
+  children: ReactNode; // content to magnify (text, images, anything)
+  zoom?: number; // magnification factor
+  lensSize?: number; // lens diameter in px
+  className?: string;
+}
+
+export function MagnifyingLens({
+  children,
+  zoom = 2,
+  lensSize = 160,
+  className = "",
+}: MagnifyingLensProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const lensRef = useRef<HTMLDivElement>(null);
+  const cloneRef = useRef<HTMLDivElement>(null);
+  const posRef = useRef({ x: 0, y: 0 });
+
+  // Place the lens at local coordinates (x, y) inside the container.
+  // The clone is translated so the magnified point sits at the lens center.
+  const place = (x: number, y: number) => {
+    const container = containerRef.current;
+    const lens = lensRef.current;
+    const clone = cloneRef.current;
+    if (!container || !lens || !clone) return;
+
+    const rect = container.getBoundingClientRect();
+    const cx = Math.max(0, Math.min(rect.width, x));
+    const cy = Math.max(0, Math.min(rect.height, y));
+    posRef.current = { x: cx, y: cy };
+    const r = lensSize / 2;
+
+    lens.style.left = \`\${cx - r}px\`;
+    lens.style.top = \`\${cy - r}px\`;
+    lens.style.opacity = "1";
+
+    clone.style.width = \`\${rect.width}px\`;
+    clone.style.height = \`\${rect.height}px\`;
+    clone.style.transform = \`translate(\${r - cx * zoom}px, \${r - cy * zoom}px) scale(\${zoom})\`;
+  };
+
+  const hide = () => {
+    const lens = lensRef.current;
+    if (lens) lens.style.opacity = "0";
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    place(e.clientX - rect.left, e.clientY - rect.top);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect || e.touches.length === 0) return;
+    const t = e.touches[0];
+    place(t.clientX - rect.left, t.clientY - rect.top);
+  };
+
+  // Keyboard users move the lens with arrow keys after focusing
+  const handleFocus = () => {
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    place(rect.width / 2, rect.height / 2);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    const step = 20;
+    let { x, y } = posRef.current;
+
+    if (e.key === "ArrowLeft") x -= step;
+    else if (e.key === "ArrowRight") x += step;
+    else if (e.key === "ArrowUp") y -= step;
+    else if (e.key === "ArrowDown") y += step;
+    else if (e.key === "Escape") {
+      hide();
+      return;
+    } else return;
+
+    e.preventDefault();
+    place(x, y);
+  };
+
+  return (
+    <div
+      ref={containerRef}
+      className={\`relative cursor-none select-none outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 rounded-lg \${className}\`}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={hide}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={hide}
+      onFocus={handleFocus}
+      onBlur={hide}
+      onKeyDown={handleKeyDown}
+      tabIndex={0}
+      role="group"
+      aria-label="Magnifier area — focus and use arrow keys to move the lens, Escape to hide it"
+    >
+      {/* The original content */}
+      {children}
+
+      {/* The lens: a clipped circle containing a scaled clone of the content */}
+      <div
+        ref={lensRef}
+        className="absolute rounded-full overflow-hidden border-[3px] border-white bg-white shadow-2xl ring-1 ring-black/20 pointer-events-none opacity-0 transition-opacity duration-200 z-10"
+        style={{ width: lensSize, height: lensSize }}
+        aria-hidden="true"
+      >
+        <div ref={cloneRef} className="absolute top-0 left-0 origin-top-left">
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}`,
+      },
+      {
+        name: "index.ts",
+        language: "typescript",
+        content: `export { MagnifyingLens } from './MagnifyingLens'`,
+      },
+    ],
+    prompt: `Create a magnifying lens component in React where the cursor becomes a
+magnifying glass over text or images:
+
+Core Effect:
+- A circular lens follows the cursor over the content
+- Inside the lens, the content appears magnified (configurable zoom factor)
+- The magnified point always matches the exact point under the cursor
+- Lens fades in on enter, fades out on leave (opacity transition 200ms)
+- Realistic lens styling: white border (3px), ring shadow, drop shadow
+
+The Clone Technique (no canvas, no libraries):
+- Render the children TWICE: once as the visible content, once inside the
+  lens — a rounded-full, overflow-hidden circle
+- The clone is sized to exactly match the container (width/height set from
+  getBoundingClientRect on every move)
+- The clone has transform-origin: 0 0 and per-frame transform:
+  translate(lensRadius - x*zoom, lensRadius - y*zoom) scale(zoom)
+  — this maps the content point (x, y) precisely to the lens center
+- Lens position clamped to the container bounds
+- All updates via refs and element.style — ZERO React re-renders per move
+
+Interaction Support:
+- Mouse: lens follows the cursor, cursor-none for immersion
+- Touch: drag a finger to move the lens, hide on touchend
+- Keyboard: focus the area → lens appears at center; arrow keys move it in
+  20px steps; Escape hides it (full keyboard parity with mouse)
+- Visible focus-visible ring on the container
+
+Component API:
+- children: ReactNode — anything magnifiable (images, fine-print text, cards)
+- zoom (default 2): magnification factor
+- lensSize (default 160): lens diameter in px
+- className: container styling
+
+Accessibility:
+- role="group" with aria-label explaining keyboard controls
+- The lens itself is aria-hidden (it duplicates content) and
+  pointer-events-none so it never blocks interaction
+- Keyboard-operable lens — arrow keys + Escape
+
+Demo should show two use cases: an image magnifier (inspect photo details)
+and a fine-print text block that needs the lens to be readable.
+
+TypeScript, Tailwind CSS, zero dependencies.`,
+    codeLink: "https://github.com/mun7594/muntasir.lofistack.portfolio",
+    liveLink: "https://muntasir-lofistack-portfolio.vercel.app/components/magnifying-lens",
+    accessibility:
+      "Full keyboard parity: focusing the area shows the lens at center, arrow keys steer it in 20px steps, and Escape hides it — with a visible focus ring. The duplicated lens content is aria-hidden so screen readers only encounter the content once, and the lens is pointer-events-none so it never blocks interaction. Touch users drag to move the lens.",
+    relatedProps: [
+      {
+        name: "children",
+        type: "ReactNode",
+        default: "required",
+        description: "The content to magnify (images, text, any JSX)",
+      },
+      {
+        name: "zoom",
+        type: "number",
+        default: "2",
+        description: "Magnification factor inside the lens",
+      },
+      {
+        name: "lensSize",
+        type: "number",
+        default: "160",
+        description: "Lens diameter in pixels",
+      },
+      {
+        name: "className",
+        type: "string",
+        default: '""',
+        description: "Extra Tailwind classes for the container",
+      },
+    ],
+    features: [
+      "Cursor becomes a real magnifying glass",
+      "Works on images AND text — any React children",
+      "Clone + transform technique, no canvas",
+      "Magnified point always matches the cursor exactly",
+      "Configurable zoom factor and lens size",
+      "Keyboard mode: arrow keys steer the lens, Esc hides",
+      "Touch support — drag to move the lens",
+      "Zero React re-renders (ref-driven updates)",
+      "Lens clamped to container bounds",
+      "Realistic glass styling with border and shadows",
+      "Screen-reader safe (clone is aria-hidden)",
+      "TypeScript support, zero dependencies",
+    ],
+  },
 ];
 
 // Helper to get latest components (for homepage)
