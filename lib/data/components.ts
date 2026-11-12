@@ -1088,6 +1088,206 @@ Accessibility:
       "Perfect for AI chat interfaces",
     ],
   },
+  {
+    id: "11",
+    slug: "infinite-marquee",
+    name: "Infinite Marquee",
+    type: "animation",
+    description: "Smooth infinite scrolling text animation with customizable speed and direction",
+    longDescription:
+      "A beautiful infinite marquee component that displays continuously scrolling text. Perfect for announcements, highlights, promotions, or any scrolling text needs. Features smooth animations, pause on hover, multiple speed options, bidirectional scrolling, and customizable colors. Responsive design with three size options.",
+    thumbnail: "",
+    createdDate: "2026-10-14",
+    week: 3,
+    componentNumber: 6,
+    category: "Animation",
+    tags: ["Animation", "Marquee", "Scrolling", "Text", "Highlight"],
+    dependencies: "React 18+",
+    techStack: ["React", "TypeScript", "Tailwind CSS", "CSS Animations"],
+    files: [
+      {
+        name: "InfiniteMarquee.tsx",
+        language: "typescript",
+        content: `"use client";
+
+interface InfiniteMarqueeProps {
+  text: string;
+  speed?: "slow" | "normal" | "fast";
+  direction?: "left" | "right";
+  backgroundColor?: string;
+  textColor?: string;
+  size?: "sm" | "md" | "lg";
+}
+
+export function InfiniteMarquee({
+  text,
+  speed = "normal",
+  direction = "left",
+  backgroundColor = "bg-gray-900",
+  textColor = "text-white",
+  size = "md",
+}: InfiniteMarqueeProps) {
+  const speedMap = {
+    slow: "120s",
+    normal: "60s",
+    fast: "30s",
+  };
+
+  const sizeClasses = {
+    sm: "text-sm py-2",
+    md: "text-xl py-4",
+    lg: "text-3xl py-6",
+  };
+
+  const animationDirection = direction === "right" ? "reverse" : "normal";
+  const animationDuration = speedMap[speed];
+
+  return (
+    <>
+      <style>{\`
+        @keyframes marquee {
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-100%);
+          }
+        }
+
+        .marquee-container {
+          overflow: hidden;
+          white-space: nowrap;
+        }
+
+        .marquee-content {
+          display: inline-block;
+          animation: marquee \${animationDuration} linear infinite;
+          animation-direction: \${animationDirection};
+          padding-right: 50px;
+        }
+
+        .marquee-container:hover .marquee-content {
+          animation-play-state: paused;
+        }
+      \`}</style>
+
+      <div className={\`w-full \${backgroundColor} \${textColor} font-bold \${sizeClasses[size]} marquee-container\`}>
+        <div className="marquee-content">
+          {text} • {text} • {text} • {text} • {text} •
+        </div>
+      </div>
+    </>
+  );
+}`,
+      },
+      {
+        name: "index.ts",
+        language: "typescript",
+        content: `export { InfiniteMarquee } from './InfiniteMarquee'`,
+      },
+    ],
+    prompt: `Create an infinite marquee scrolling text component in React with these features:
+
+Core Functionality:
+- Continuously scrolling text animation that loops infinitely
+- Text repeats seamlessly for endless scrolling effect
+- Pause animation on hover for better UX
+- Smooth linear animation without jumpiness
+
+Speed Options:
+- Slow: 120 seconds per scroll
+- Normal (default): 60 seconds per scroll
+- Fast: 30 seconds per scroll
+
+Directional Support:
+- Left-to-Right (default): Text scrolls from right to left
+- Right-to-Left: Text scrolls from left to right (reversed animation)
+
+Size Options:
+- Small: text-sm, py-2
+- Medium (default): text-xl, py-4
+- Large: text-3xl, py-6
+
+Customization:
+- Background color (accepts Tailwind classes)
+- Text color (accepts Tailwind classes)
+- Support for gradient backgrounds
+
+Visual Design:
+- Full width responsive container
+- Overflow hidden to show smooth animation
+- Proper spacing between repeated text (• separator)
+- Bold font weight for emphasis
+
+Animation Details:
+- CSS keyframe animation (0% to 100% translateX)
+- Linear timing function for consistent speed
+- Animation direction reversal for right-to-left
+- Pause on hover state for interactivity
+
+Perfect for:
+- Site announcements
+- Promotional messages
+- Featured highlights
+- Stock tickers
+- News feeds`,
+    codeLink: "https://github.com/mun7594/muntasir.lofistack.portfolio",
+    liveLink: "https://muntasir-lofistack-portfolio.vercel.app/components/infinite-marquee",
+    accessibility:
+      "Text is readable with high contrast. Animation pauses on hover. Content is not hidden from screen readers. Multiple speed options for visibility preferences. Semantic markup with proper text alternatives.",
+    relatedProps: [
+      {
+        name: "text",
+        type: "string",
+        default: "required",
+        description: "Text content to scroll",
+      },
+      {
+        name: "speed",
+        type: '"slow" | "normal" | "fast"',
+        default: '"normal"',
+        description: "Scrolling speed",
+      },
+      {
+        name: "direction",
+        type: '"left" | "right"',
+        default: '"left"',
+        description: "Scroll direction",
+      },
+      {
+        name: "backgroundColor",
+        type: "string",
+        default: '"bg-gray-900"',
+        description: "Tailwind background color class",
+      },
+      {
+        name: "textColor",
+        type: "string",
+        default: '"text-white"',
+        description: "Tailwind text color class",
+      },
+      {
+        name: "size",
+        type: '"sm" | "md" | "lg"',
+        default: '"md"',
+        description: "Text size",
+      },
+    ],
+    features: [
+      "Infinite smooth scrolling animation",
+      "Three speed options (slow, normal, fast)",
+      "Bidirectional scrolling (left/right)",
+      "Pause on hover for better UX",
+      "Three size options (small, medium, large)",
+      "Customizable colors and backgrounds",
+      "Seamless looping with repeating text",
+      "Responsive full-width design",
+      "Perfect for announcements",
+      "TypeScript support",
+      "No external animation libraries",
+      "Lightweight and performant",
+    ],
+  },
 ];
 
 // Helper to get latest components (for homepage)
