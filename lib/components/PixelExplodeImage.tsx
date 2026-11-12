@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 interface PixelExplodeImageProps {
   src: string;
@@ -57,25 +57,62 @@ export function PixelExplodeImage({
   spread = 450,
 }: PixelExplodeImageProps) {
   const [exploded, setExploded] = useState(false);
+  // settled = fully reassembled → corners can be clipped round again
+  const [settled, setSettled] = useState(true);
   const [reduceMotion, setReduceMotion] = useState(false);
+  // Background geometry emulating object-fit: cover (no stretching)
+  const [bg, setBg] = useState({ w: width, h: height, ox: 0, oy: 0 });
+  const settleTimer = useRef<number | null>(null);
 
   const cols = grid;
   const tileSize = width / cols;
   const rows = Math.round(height / tileSize);
-  const tiles = useMemo(() => buildTiles(cols, rows, spread), [cols, rows, spread]);
+  const tiles = useMemo(
+    () => buildTiles(cols, rows, spread),
+    [cols, rows, spread]
+  );
 
   useEffect(() => {
     setReduceMotion(
       window.matchMedia("(prefers-reduced-motion: reduce)").matches
     );
-  }, []);
 
-  const explode = () => !reduceMotion && setExploded(true);
-  const assemble = () => setExploded(false);
+    // Measure the real image and compute cover-crop geometry so the
+    // photo is never squeezed or stretched
+    const img = new window.Image();
+    img.src = src;
+    img.onload = () => {
+      const scale = Math.max(
+        width / img.naturalWidth,
+        height / img.naturalHeight
+      );
+      const w = img.naturalWidth * scale;
+      const h = img.naturalHeight * scale;
+      setBg({ w, h, ox: (w - width) / 2, oy: (h - height) / 2 });
+    };
+
+    return () => {
+      if (settleTimer.current !== null) window.clearTimeout(settleTimer.current);
+    };
+  }, [src, width, height]);
+
+  const explode = () => {
+    if (reduceMotion) return;
+    if (settleTimer.current !== null) window.clearTimeout(settleTimer.current);
+    setSettled(false);
+    setExploded(true);
+  };
+
+  const assemble = () => {
+    setExploded(false);
+    if (settleTimer.current !== null) window.clearTimeout(settleTimer.current);
+    // Re-clip the rounded corners only after the tiles have flown home
+    settleTimer.current = window.setTimeout(() => setSettled(true), 800);
+  };
 
   return (
     <div
-      className="relative outline-none focus-visible:ring-2 focus-visible:ring-offset-4 focus-visible:ring-gray-900 rounded-lg"
+      className="relative outline-none focus-visible:ring-2 focus-visible:ring-offset-4 focus-visible:ring-gray-900 rounded-2xl"
       style={{ width, height, zIndex: 30 }}
       onMouseEnter={explode}
       onMouseLeave={assemble}
@@ -88,13 +125,18 @@ export function PixelExplodeImage({
     >
       {/* Backing shadow — fades away while the pixels are blown apart */}
       <div
-        className="absolute inset-0 rounded-lg shadow-lg transition-opacity duration-500"
+        className="absolute inset-0 rounded-2xl shadow-lg transition-opacity duration-500"
         style={{ opacity: exploded ? 0 : 1 }}
         aria-hidden="true"
       />
 
-      {/* The image, sliced into tiles */}
-      <div className="absolute inset-0" aria-hidden="true">
+      {/* The image, sliced into tiles. Clipped to rounded corners while
+          assembled; clipping released so tiles can fly across the screen */}
+      <div
+        className="absolute inset-0 rounded-2xl"
+        style={{ overflow: settled && !exploded ? "hidden" : "visible" }}
+        aria-hidden="true"
+      >
         {tiles.map((t, idx) => (
           <div
             key={idx}
@@ -105,8 +147,8 @@ export function PixelExplodeImage({
               width: tileSize + 0.5,
               height: tileSize + 0.5,
               backgroundImage: `url(${src})`,
-              backgroundSize: `${width}px ${height}px`,
-              backgroundPosition: `-${t.col * tileSize}px -${t.row * tileSize}px`,
+              backgroundSize: `${bg.w}px ${bg.h}px`,
+              backgroundPosition: `-${t.col * tileSize + bg.ox}px -${t.row * tileSize + bg.oy}px`,
               borderRadius: exploded ? "40%" : "0%",
               opacity: exploded ? 0.9 : 1,
               transform: exploded

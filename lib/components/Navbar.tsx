@@ -10,12 +10,18 @@ export default function Navbar() {
     <nav className="sticky top-0 z-50 bg-white border-b border-gray-100">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo */}
+          {/* Text Logo */}
           <Link
             href="/"
-            className="text-xl font-bold text-gray-900 hover:text-gray-600 transition-colors"
+            className="group flex items-baseline select-none"
+            aria-label="Muntasir — home"
           >
-            Muntasir
+            <span className="text-2xl font-black tracking-tighter text-gray-900 group-hover:tracking-tight transition-all duration-300">
+              Muntasir
+            </span>
+            <span className="text-2xl font-black text-blue-600 group-hover:scale-125 transition-transform duration-300 origin-bottom-left">
+              .
+            </span>
           </Link>
 
           {/* Desktop Menu */}
