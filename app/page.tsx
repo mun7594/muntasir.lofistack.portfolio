@@ -1,7 +1,7 @@
 import Hero from "@/lib/components/Hero";
 import ComponentCard from "@/lib/components/ComponentCard";
 import AgentCard from "@/lib/components/AgentCard";
-import { getLatestComponents } from "@/lib/data/components";
+import { getLatestComponents, components } from "@/lib/data/components";
 import { getLatestAgents } from "@/lib/data/agents";
 import Link from "next/link";
 
@@ -18,13 +18,16 @@ export default function Home() {
       <section id="components" className="py-20 bg-gray-50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3 flex items-center gap-3">
               Components
+              <span className="text-sm font-bold bg-gray-900 text-white px-3 py-1 rounded-full align-middle">
+                {components.length}
+              </span>
             </h2>
             <p className="text-gray-600 max-w-2xl">
-              A collection of modern, reusable React components built with
-              TypeScript and Tailwind CSS. Each component is production-ready
-              and fully responsive.
+              A collection of {components.length} modern, reusable React
+              components built with TypeScript and Tailwind CSS. Each component
+              is production-ready and fully responsive.
             </p>
           </div>
 
