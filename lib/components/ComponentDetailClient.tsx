@@ -11,6 +11,7 @@ import ProgressIndicatorDemo from "./ProgressIndicatorDemo";
 import PromptBarDemo from "./PromptBarDemo";
 import InfiniteMarqueeDemo from "./InfiniteMarqueeDemo";
 import ImageRevealCardDemo from "./ImageRevealCardDemo";
+import PixelShatterLogoDemo from "./PixelShatterLogoDemo";
 
 export function ComponentDetailClient({
   component,
@@ -256,6 +257,8 @@ export function ComponentDetailClient({
                     <InfiniteMarqueeDemo />
                   ) : slug === "image-reveal-card" ? (
                     <ImageRevealCardDemo />
+                  ) : slug === "pixel-shatter-logo" ? (
+                    <PixelShatterLogoDemo />
                   ) : (
                     <div className="bg-white rounded-lg p-8 h-96 flex items-center justify-center border border-gray-300">
                       <div className="text-center">
